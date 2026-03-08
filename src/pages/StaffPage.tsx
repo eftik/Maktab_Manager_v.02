@@ -202,8 +202,8 @@ const StaffPage = () => {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center">
-          <div className="bg-card w-full max-w-lg rounded-t-3xl p-6 space-y-3 animate-in slide-in-from-bottom max-h-[85vh] overflow-auto">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-card w-full max-w-lg rounded-2xl p-6 space-y-3 animate-in zoom-in-95 max-h-[85vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-lg text-foreground">{editing ? t('editStaff') : t('addStaff')}</h2>
               <button onClick={() => setShowForm(false)}><X size={20} className="text-muted-foreground" /></button>
