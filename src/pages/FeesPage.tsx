@@ -193,7 +193,7 @@ const FeesPage = () => {
                   {studentPayments.map(p => (
                     <div key={p.id} className="px-4 py-3 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-foreground">{t(p.feeType)} · {fmtAFN(p.finalAmount)}</p>
+                        <p className="text-xs text-foreground">{feeTypeLabel(p.feeType, t, p.customFeeLabel)} · {fmtAFN(p.finalAmount)}</p>
                         <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${toWestern(p.billNumber)}` : ''}</p>
                       </div>
                       <div className="flex items-center gap-1">
