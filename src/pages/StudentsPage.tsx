@@ -309,6 +309,8 @@ const StudentsPage = () => {
           </div>
         </div>
       )}
+
+      <ImportDialog open={showImport} onClose={() => setShowImport(false)} />
     </div>
   );
 };
