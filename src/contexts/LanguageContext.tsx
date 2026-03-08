@@ -90,6 +90,8 @@ const T = {
     allCategories:'همه کتگوری‌ها', customCategory:'کتگوری سفارشی',
     grades:'صنوف', section:'بخش', addGrade:'اضافه کردن صنف', manageGrades:'مدیریت صنوف',
     gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
+    monthlyBreakdown:'تفکیک ماهانه', unpaidFees:'فیس‌های پرداخت نشده', estimated:'تخمینی',
+    monthly:'ماهانه', total:'مجموع',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
