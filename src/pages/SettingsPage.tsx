@@ -51,7 +51,7 @@ const SettingsPage = () => {
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-4 text-center">
-        <p className="text-xs text-muted-foreground">SchoolManager v2.0</p>
+        <p className="text-xs text-muted-foreground">Maktab Manager v2.0</p>
         <p className="text-xs text-muted-foreground mt-1">Made for Afghan Private Schools 🇦🇫</p>
       </div>
     </div>

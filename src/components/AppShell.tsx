@@ -131,7 +131,7 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
 
             {/* Drawer Footer */}
             <div className="px-5 py-4 border-t border-border pb-safe">
-              <p className="text-[10px] text-muted-foreground text-center">SchoolManager v1.0</p>
+              <p className="text-[10px] text-muted-foreground text-center">Maktab Manager v1.0</p>
             </div>
           </nav>
         </>
