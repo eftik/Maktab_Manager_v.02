@@ -142,15 +142,6 @@ const SchoolsPage = () => {
             {/* Grade Management */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">{t('manageGrades')}</label>
-              <div className="flex gap-2">
-                <input value={newGrade} onChange={e => setNewGrade(e.target.value)} placeholder={t('gradeLabel')}
-                  className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
-                <input value={newSection} onChange={e => setNewSection(e.target.value)} placeholder={t('sectionLabel')}
-                  className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
-                <button onClick={addGradeSection} className="bg-primary text-primary-foreground px-3 py-2 rounded-xl text-sm">
-                  <Plus size={16} />
-                </button>
-              </div>
               {formGrades.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {formGrades.map((g, i) => (
@@ -161,6 +152,15 @@ const SchoolsPage = () => {
                   ))}
                 </div>
               )}
+              <div className="flex gap-2">
+                <input value={newGrade} onChange={e => setNewGrade(e.target.value)} placeholder={t('gradeLabel')}
+                  className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                <input value={newSection} onChange={e => setNewSection(e.target.value)} placeholder={t('sectionLabel')}
+                  className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                <button onClick={addGradeSection} className="bg-primary text-primary-foreground px-3 py-2 rounded-xl text-sm">
+                  <Plus size={16} />
+                </button>
+              </div>
             </div>
 
             <button onClick={handleSave} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium">{t('save')}</button>
