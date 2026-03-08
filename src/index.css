@@ -151,10 +151,29 @@
   body {
     @apply bg-background text-foreground;
     -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
+    /* iOS PWA: allow native text interaction so virtual keyboard opens reliably */
+    -webkit-touch-callout: default;
     overscroll-behavior-y: contain;
     font-feature-settings: "cv11", "ss01";
     min-height: 100dvh;
+  }
+
+  /* iOS/PWA input reliability fixes */
+  input,
+  textarea,
+  select {
+    -webkit-user-select: text;
+    user-select: text;
+    touch-action: auto;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    input,
+    textarea,
+    select {
+      /* Prevent iOS zoom/focus glitches in standalone mode */
+      font-size: 16px;
+    }
   }
 
   /* Better touch targets */

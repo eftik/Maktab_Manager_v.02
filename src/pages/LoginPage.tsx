@@ -66,6 +66,9 @@ const LoginPage = () => {
               <Lock size={16} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground" />
               <input
                 type={showPw ? 'text' : 'password'}
+                autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
