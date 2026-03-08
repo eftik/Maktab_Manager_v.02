@@ -50,6 +50,8 @@ const T = {
     quarterly:'Quarterly', yearly:'Yearly', custom:'Custom', period:'Period',
     fromDate:'From', toDate:'To', allTime:'All Time', q1:'Q1 (Hamal-Jawza)',
     q2:'Q2 (Saratan-Sunbula)', q3:'Q3 (Mizan-Qaws)', q4:'Q4 (Jadi-Hoot)',
+    login:'Login', email:'Email', password:'Password', logout:'Logout',
+    admins:'Admins', addAdmin:'Add Admin', owner:'Owner', noAccess:'Access denied',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
