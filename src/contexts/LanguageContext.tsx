@@ -62,6 +62,8 @@ const T = {
     currentPasscode:'Current Master Passcode', newPasscode:'New Master Passcode (optional)',
     checkingSetup:'Checking setup...', changePassword:'leave blank to keep',
     editAdmin:'Edit Admin',
+    printSelected:'Print Selected',
+    selectAll:'Select All',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -122,6 +124,8 @@ const T = {
     currentPasscode:'رمز اصلی فعلی', newPasscode:'رمز اصلی جدید (اختیاری)',
     checkingSetup:'بررسی تنظیمات...', changePassword:'خالی بگذارید تا تغییر نکند',
     editAdmin:'ویرایش مدیر',
+    printSelected:'چاپ انتخاب شده',
+    selectAll:'انتخاب همه',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -182,6 +186,8 @@ const T = {
     currentPasscode:'اوسنی اصلي پټنوم', newPasscode:'نوی اصلي پټنوم (اختیاري)',
     checkingSetup:'ترتیبات چک کول...', changePassword:'خالي پرېږدئ ترڅو بدل نشي',
     editAdmin:'مدیر سمول',
+    printSelected:'انتخاب شوي چاپ کول',
+    selectAll:'ټول انتخاب',
   },
 } as const;
 
