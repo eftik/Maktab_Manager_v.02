@@ -61,7 +61,7 @@ const FeesPage = () => {
   const openEdit = (p: Payment) => {
     setForm({ studentId: p.studentId, schoolId: p.schoolId, feeType: p.feeType,
       amount: p.amount, discount: p.discount, finalAmount: p.finalAmount,
-      date: p.date, note: p.note, billNumber: p.billNumber });
+      date: p.date, note: p.note, billNumber: p.billNumber, customFeeLabel: p.customFeeLabel || '' });
     setEditing(p); setShowForm(true);
   };
 
