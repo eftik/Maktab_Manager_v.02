@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [admin, setAdmin] = useState<AdminInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
 
   const fetchAdmin = useCallback(async (userId: string) => {
     const { data } = await supabase
@@ -40,7 +41,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    // Get initial session once
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) await fetchAdmin(u.id);
+      setLoading(false);
+      initializedRef.current = true;
+    });
+
+    // Listen for subsequent auth changes only
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!initializedRef.current) return; // Skip initial event, we handle it above
       const u = session?.user ?? null;
       setUser(u);
       if (u) {
@@ -48,16 +60,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setAdmin(null);
       }
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const u = session?.user ?? null;
-      setUser(u);
-      if (u) {
-        await fetchAdmin(u.id);
-      }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
