@@ -41,6 +41,27 @@ export type Database = {
         }
         Relationships: []
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -51,6 +72,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["admin_role"]
       }
       get_admin_school_id: { Args: { _user_id: string }; Returns: string }
+      owner_exists: { Args: never; Returns: boolean }
     }
     Enums: {
       admin_role: "owner" | "admin"
