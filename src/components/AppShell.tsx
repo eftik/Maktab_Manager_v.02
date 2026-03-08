@@ -92,7 +92,7 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
             )}
           >
             <Menu size={20} strokeWidth={1.8} />
-            <span className="text-[10px] font-medium">More</span>
+            <span className="text-[10px] font-medium">{t('more' as any)}</span>
           </button>
         </div>
       </nav>

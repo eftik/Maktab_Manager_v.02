@@ -5,6 +5,7 @@ import {
   toShamsi, toGregorian, formatShamsi, getShamsiMonthDays,
   getShamsiFirstDayOfWeek, shamsiMonths, weekDays
 } from '@/lib/shamsi';
+import type { Language } from '@/types';
 import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
 import {
   Popover, PopoverContent, PopoverTrigger
