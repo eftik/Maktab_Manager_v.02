@@ -21,6 +21,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const AdminsPage = lazy(() => import("@/pages/AdminsPage"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const SetupPage = lazy(() => import("@/pages/SetupPage"));
+const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
 
 const queryClient = new QueryClient();
 
