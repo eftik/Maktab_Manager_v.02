@@ -132,9 +132,15 @@ const StudentsPage = () => {
           });
           return (
             <div className="space-y-2">
-              <h3 className="font-semibold text-destructive flex items-center gap-1.5">
-                <AlertCircle size={16} /> {t('unpaid')} {lang === 'en' ? 'Months' : lang === 'da' ? 'ماه‌ها' : 'میاشتونه'}
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-destructive flex items-center gap-1.5">
+                  <AlertCircle size={16} /> {t('unpaid')} {lang === 'en' ? 'Months' : lang === 'da' ? 'ماه‌ها' : 'میاشتونه'}
+                </h3>
+                <button onClick={() => sendWhatsApp(viewStudent, unpaid)}
+                  className="flex items-center gap-1.5 bg-green-600 text-white px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-green-700 transition-colors">
+                  <MessageCircle size={14} /> {t('whatsappReminder')}
+                </button>
+              </div>
               <div className="space-y-1.5">
                 {Array.from(grouped.entries()).map(([key, types]) => {
                   const [y, m] = key.split('-').map(Number);
