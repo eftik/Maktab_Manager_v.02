@@ -10,6 +10,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 
 const categories: ExpenseCategory[] = ['salary', 'electricity', 'rent', 'maintenance', 'supplies', 'other'];
 const catKey: Record<ExpenseCategory, string> = { salary:'salaryExp', electricity:'electricity', rent:'rent', maintenance:'maintenance', supplies:'supplies', other:'other' };
+const roleKey: Record<string, string> = { teacher:'teacher', guard:'guard', admin_staff:'adminStaff', cleaner:'cleaner', driver:'driver', other:'other' };
 
 const emptyForm = () => ({
   schoolId: '', category: 'salary' as ExpenseCategory, amount: 0,
@@ -35,6 +36,7 @@ const ExpensesPage = () => {
   }, [expenses, schoolFilter, search]);
 
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
+  const getStaff = (id?: string) => id ? staffList.find(s => s.id === id) : undefined;
 
   const openAdd = () => { setForm({ ...emptyForm(), schoolId: schools[0]?.id || '' }); setEditing(null); setShowForm(true); };
   const openEdit = (e: Expense) => {
@@ -77,7 +79,10 @@ const ExpensesPage = () => {
             <div>
               <p className="font-medium text-sm text-foreground">{t(catKey[e.category] as any)}</p>
               <p className="text-xs text-muted-foreground">{schoolName(e.schoolId)} · {formatShamsi(e.date, lang)}</p>
-              {e.personName && <p className="text-xs text-muted-foreground">{e.personName}</p>}
+              {e.category === 'salary' && (() => { const staff = getStaff(e.staffId); return staff ? (
+                <p className="text-xs font-medium text-primary">{staff.name} — {t((roleKey[staff.role] || 'other') as any)}{staff.customRole ? ` (${staff.customRole})` : ''}</p>
+              ) : e.personName ? <p className="text-xs text-muted-foreground">{e.personName}</p> : null; })()}
+              {e.category !== 'salary' && e.personName && <p className="text-xs text-muted-foreground">{e.personName}</p>}
               {e.description && <p className="text-xs text-muted-foreground">{e.description}</p>}
             </div>
             <div className="flex items-center gap-1.5">
