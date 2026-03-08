@@ -53,7 +53,6 @@ const StudentsPage = () => {
     }
     return unpaid;
   };
-  const schoolGrades = selectedSchool?.grades || [];
   const filtered = students
     .filter(s => showArchived ? s.status === 'archived' : s.status === 'active')
     .filter(s => !schoolFilter || s.schoolId === schoolFilter)
