@@ -94,6 +94,21 @@ const LoginPage = () => {
             <LogIn size={16} />
             {loading ? '...' : t('login' as any)}
           </button>
+
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            disabled={forgotLoading}
+            className="w-full text-xs text-muted-foreground hover:text-primary transition-colors py-1"
+          >
+            {forgotLoading ? '...' : t('forgotPassword' as any)}
+          </button>
+
+          {forgotMsg && (
+            <div className="bg-primary/10 text-primary text-xs rounded-xl px-4 py-2.5 font-medium text-center">
+              {forgotMsg}
+            </div>
+          )}
         </form>
 
         <p className="text-[10px] text-muted-foreground text-center">Maktab Manager v2.0</p>
