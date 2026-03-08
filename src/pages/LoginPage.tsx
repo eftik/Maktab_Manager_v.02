@@ -47,6 +47,10 @@ const LoginPage = () => {
               <Mail size={16} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground" />
               <input
                 type="email"
+                inputMode="email"
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
