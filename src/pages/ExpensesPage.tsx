@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { Plus, Trash2, X } from 'lucide-react';
+import ShamsiDatePicker from '@/components/ShamsiDatePicker';
+import { formatShamsi } from '@/lib/shamsi';
 
 const expenseTypes = ['teacherSalary','driverSalary','guardSalary','cleanerSalary','electricity','internet','water','other'] as const;
 
 const ExpensesPage = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { schools, expenses, addExpense, deleteExpense } = useData();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ type: expenseTypes[0] as string, amount: '', date: new Date().toISOString().split('T')[0], note: '', schoolId: '' });
@@ -33,7 +35,7 @@ const ExpensesPage = () => {
           <div key={e.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm flex items-center justify-between">
             <div>
               <p className="font-medium text-sm text-foreground">{t(e.type as any)}</p>
-              <p className="text-xs text-muted-foreground">{schoolName(e.schoolId)} · {e.date}</p>
+              <p className="text-xs text-muted-foreground">{schoolName(e.schoolId)} · {formatShamsi(e.date, lang)}</p>
               {e.note && <p className="text-xs text-muted-foreground mt-0.5">{e.note}</p>}
             </div>
             <div className="flex items-center gap-2">
@@ -73,8 +75,7 @@ const ExpensesPage = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('date')}</label>
-              <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
+              <ShamsiDatePicker value={form.date} onChange={d => setForm({ ...form, date: d })} />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('note')}</label>
