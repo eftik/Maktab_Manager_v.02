@@ -79,7 +79,10 @@ const ExpensesPage = () => {
             <div>
               <p className="font-medium text-sm text-foreground">{t(catKey[e.category] as any)}</p>
               <p className="text-xs text-muted-foreground">{schoolName(e.schoolId)} · {formatShamsi(e.date, lang)}</p>
-              {e.personName && <p className="text-xs text-muted-foreground">{e.personName}</p>}
+              {e.category === 'salary' && (() => { const staff = getStaff(e.staffId); return staff ? (
+                <p className="text-xs font-medium text-primary">{staff.name} — {t((roleKey[staff.role] || 'other') as any)}{staff.customRole ? ` (${staff.customRole})` : ''}</p>
+              ) : e.personName ? <p className="text-xs text-muted-foreground">{e.personName}</p> : null; })()}
+              {e.category !== 'salary' && e.personName && <p className="text-xs text-muted-foreground">{e.personName}</p>}
               {e.description && <p className="text-xs text-muted-foreground">{e.description}</p>}
             </div>
             <div className="flex items-center gap-1.5">
