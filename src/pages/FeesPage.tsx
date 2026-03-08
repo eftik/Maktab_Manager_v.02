@@ -217,6 +217,13 @@ const FeesPage = () => {
         {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
       </select>
 
+      {selectedPayments.size > 0 && (
+        <button onClick={printSelectedReceipts}
+          className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-medium">
+          <Printer size={16} /> {t('printSelected')} ({selectedPayments.size})
+        </button>
+      )}
+
       {grouped.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
 
       <div className="space-y-3">
