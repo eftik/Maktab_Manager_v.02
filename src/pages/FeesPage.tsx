@@ -84,7 +84,6 @@ const FeesPage = () => {
     addPayment(tempPayment);
     setQuickAdd(null);
     setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
-    setTimeout(() => showReceipt({ ...tempPayment, id: 'temp' } as Payment), 300);
   };
 
   const handleStudentChange = (studentId: string) => {
