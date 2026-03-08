@@ -297,7 +297,7 @@ const StudentsPage = () => {
             {form.discountType === 'percentage' && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground">{t('discountValue')} (%)</label>
-                <input type="number" value={form.discountValue} onChange={e => setForm({ ...form, discountValue: Number(e.target.value) })}
+                <input type="text" inputMode="numeric" value={numDisplay(form.discountValue)} onChange={e => setForm({ ...form, discountValue: parseNumInput(e.target.value) })}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             )}

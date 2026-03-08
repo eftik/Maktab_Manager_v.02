@@ -43,3 +43,9 @@ export const printHTML = (title: string, bodyHTML: string) => {
 };
 
 export const uid = () => crypto.randomUUID();
+
+/** Parse a numeric input value, converting Arabic/Indic digits to Western and returning the number */
+export const parseNumInput = (v: string): number => Number(toWestern(v)) || 0;
+
+/** Display a numeric value for input fields - show empty string for 0 */
+export const numDisplay = (v: number): string => v ? String(v) : '';
