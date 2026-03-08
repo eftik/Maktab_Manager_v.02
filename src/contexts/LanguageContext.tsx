@@ -64,6 +64,9 @@ const T = {
     editAdmin:'Edit Admin',
     printSelected:'Print Selected',
     selectAll:'Select All',
+    combinedReceipt:'Combined Receipt',
+    grandTotal:'Grand Total',
+    items:'Items',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -126,6 +129,9 @@ const T = {
     editAdmin:'ویرایش مدیر',
     printSelected:'چاپ انتخاب شده',
     selectAll:'انتخاب همه',
+    combinedReceipt:'رسید مشترک',
+    grandTotal:'مجموع کل',
+    items:'موارد',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -188,6 +194,9 @@ const T = {
     editAdmin:'مدیر سمول',
     printSelected:'انتخاب شوي چاپ کول',
     selectAll:'ټول انتخاب',
+    combinedReceipt:'ګډ رسید',
+    grandTotal:'ټوله مجموعه',
+    items:'توکي',
   },
 } as const;
 

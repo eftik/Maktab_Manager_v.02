@@ -2,11 +2,11 @@ import { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Payment, FeeType } from '@/types';
-import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle, ChevronDown, ChevronUp, ChevronsUpDown, Check, Printer } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle, ChevronDown, ChevronUp, ChevronsUpDown, Check, Printer, ChevronRight } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
-import { formatShamsi } from '@/lib/shamsi';
+import { formatShamsi, toShamsi, formatShamsiMonth } from '@/lib/shamsi';
 import { fmtAFN, printHTML, toWestern, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
@@ -21,6 +21,22 @@ const emptyForm = () => ({
   note: '', billNumber: '', customFeeLabel: '',
 });
 
+/** Group payments by Shamsi month key "YYYY-MM" */
+const groupByMonth = (payments: Payment[]): Map<string, Payment[]> => {
+  const map = new Map<string, Payment[]>();
+  payments.forEach(p => {
+    const d = new Date(p.date);
+    if (isNaN(d.getTime())) return;
+    const { year, month } = toShamsi(d);
+    const key = `${year}-${String(month).padStart(2, '0')}`;
+    const list = map.get(key) || [];
+    list.push(p);
+    map.set(key, list);
+  });
+  // Sort keys descending (newest first)
+  return new Map([...map.entries()].sort((a, b) => b[0].localeCompare(a[0])));
+};
+
 const FeesPage = () => {
   const { t, lang } = useLanguage();
   const { students, schools, payments, addPayment, updatePayment, deletePayment } = useData();
@@ -29,9 +45,9 @@ const FeesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Payment | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [_receipt, _setReceipt] = useState<Payment | null>(null);
   const [form, setForm] = useState(emptyForm());
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
+  const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
   const [quickAdd, setQuickAdd] = useState<string | null>(null);
   const [quickForm, setQuickForm] = useState({ feeType: 'tuition' as FeeType, amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
   const [studentPopoverOpen, setStudentPopoverOpen] = useState(false);
@@ -58,6 +74,7 @@ const FeesPage = () => {
     });
     return Array.from(map.entries());
   }, [filtered]);
+
   const openAdd = () => { setForm(emptyForm()); setEditing(null); setShowForm(true); };
   const openEdit = (p: Payment) => {
     setForm({ studentId: p.studentId, schoolId: p.schoolId, feeType: p.feeType,
@@ -81,8 +98,7 @@ const FeesPage = () => {
     const s = students.find(st => st.id === studentId);
     if (!s) return;
     const final = quickForm.amount - quickForm.discount;
-    const tempPayment = { studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber, customFeeLabel: quickForm.feeType === 'other' ? quickForm.customFeeLabel : undefined };
-    addPayment(tempPayment);
+    addPayment({ studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber, customFeeLabel: quickForm.feeType === 'other' ? quickForm.customFeeLabel : undefined });
     setQuickAdd(null);
     setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
   };
@@ -112,46 +128,98 @@ const FeesPage = () => {
     });
   };
 
+  const toggleMonth = (key: string) => {
+    setExpandedMonths(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
+  /** Print a COMBINED receipt: one receipt with all selected items as line items */
   const printSelectedReceipts = () => {
     const selected = filtered.filter(p => selectedPayments.has(p.id));
     if (!selected.length) return;
     const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const receiptsHTML = selected.map(p => {
-      const s = students.find(st => st.id === p.studentId);
-      const sch = schools.find(sc => sc.id === p.schoolId);
-      return `
-        <div style="max-width:400px;margin:0 auto 40px;font-family:system-ui,sans-serif;page-break-inside:avoid;">
-          <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:12px;margin-bottom:16px;">
-            <h1 style="font-size:22px;margin:0 0 4px;">🧾 ${t('receipt')}</h1>
-            <p style="margin:0;font-size:13px;color:#666;">${sch?.name || ''}</p>
-            ${sch?.phone ? `<p style="margin:2px 0 0;font-size:12px;color:#888;">${sch.phone}</p>` : ''}
-          </div>
-          <div style="margin-bottom:12px;">
-            <div class="row"><strong>${t('student')}:</strong><span>${s?.name || ''}</span></div>
-            <div class="row"><span>${t('grade')}:</span><span>${s?.grade || '—'}</span></div>
-            <div class="row"><span>${t('idNumber')}:</span><span>${s?.idNumber || '—'}</span></div>
-            <div class="row"><span>${t('parentName')}:</span><span>${s?.parentName || '—'}</span></div>
-          </div>
-          <div style="border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:8px 0;margin-bottom:12px;">
-            <div class="row"><span>${t('feeType')}:</span><span>${feeTypeLabel(p.feeType, t, p.customFeeLabel)}</span></div>
-            <div class="row"><span>${t('amount')}:</span><span>${fmtAFN(p.amount)}</span></div>
-            ${p.discount > 0 ? `<div class="row"><span>${t('discount')}:</span><span style="color:#e53e3e;">- ${fmtAFN(p.discount)}</span></div>` : ''}
-            <div class="row" style="font-weight:bold;font-size:15px;border-top:1px solid #ddd;margin-top:6px;padding-top:8px;">
-              <span>${t('finalAmount')}:</span><span>${fmtAFN(p.finalAmount)}</span>
-            </div>
-          </div>
-          <div style="font-size:12px;color:#666;">
-            <div class="row"><span>${t('date')}:</span><span>${formatShamsi(p.date, lang)}</span></div>
-            ${p.billNumber ? `<div class="row"><span>${t('billNumber')}:</span><span>#${p.billNumber}</span></div>` : ''}
-            ${p.note ? `<div class="row"><span>${t('note')}:</span><span>${p.note}</span></div>` : ''}
-            <div class="row"><span>Time:</span><span>${now}</span></div>
-          </div>
-          <div style="text-align:center;margin-top:20px;padding-top:12px;border-top:1px dashed #ccc;font-size:11px;color:#aaa;">
-            <p style="margin:0;">Thank you / تشکر از پرداخت شما</p>
-          </div>
-        </div>`;
-    }).join('<hr style="border:none;border-top:2px dashed #ccc;margin:20px 0;">');
-    printHTML(t('receipt'), receiptsHTML);
+
+    // Group selected by student for the combined receipt
+    const byStudent = new Map<string, Payment[]>();
+    selected.forEach(p => {
+      const list = byStudent.get(p.studentId) || [];
+      list.push(p);
+      byStudent.set(p.studentId, list);
+    });
+
+    const grandTotal = selected.reduce((s, p) => s + p.finalAmount, 0);
+    const totalDiscount = selected.reduce((s, p) => s + p.discount, 0);
+    const totalAmount = selected.reduce((s, p) => s + p.amount, 0);
+
+    // Get first student/school for header (or generic if multiple students)
+    const studentIds = [...byStudent.keys()];
+    const isSingleStudent = studentIds.length === 1;
+    const firstStudent = students.find(st => st.id === studentIds[0]);
+    const firstSchool = schools.find(sc => sc.id === selected[0].schoolId);
+
+    const itemRows = selected.map((p, i) => {
+      const sName = isSingleStudent ? '' : `<td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;">${studentName(p.studentId)}</td>`;
+      return `<tr>
+        <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;text-align:center;">${i + 1}</td>
+        ${sName}
+        <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;">${feeTypeLabel(p.feeType, t, p.customFeeLabel)}</td>
+        <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;">${formatShamsi(p.date, lang)}</td>
+        <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;text-align:right;">${fmtAFN(p.amount)}</td>
+        <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;text-align:right;color:#e53e3e;">${p.discount > 0 ? fmtAFN(p.discount) : '—'}</td>
+        <td style="padding:6px 8px;border:1px solid #ddd;font-size:12px;text-align:right;font-weight:600;">${fmtAFN(p.finalAmount)}</td>
+      </tr>`;
+    }).join('');
+
+    const studentHeader = isSingleStudent ? '' : `<th style="padding:6px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:12px;">${t('student')}</th>`;
+
+    const receiptHTML = `
+      <div style="max-width:600px;margin:0 auto;font-family:system-ui,sans-serif;">
+        <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:12px;margin-bottom:16px;">
+          <h1 style="font-size:22px;margin:0 0 4px;">🧾 ${t('combinedReceipt')}</h1>
+          <p style="margin:0;font-size:13px;color:#666;">${firstSchool?.name || ''}</p>
+          ${firstSchool?.phone ? `<p style="margin:2px 0 0;font-size:12px;color:#888;">${firstSchool.phone}</p>` : ''}
+        </div>
+        ${isSingleStudent ? `
+        <div style="margin-bottom:12px;">
+          <div class="row"><strong>${t('student')}:</strong><span>${firstStudent?.name || ''}</span></div>
+          <div class="row"><span>${t('grade')}:</span><span>${firstStudent?.grade || '—'}</span></div>
+          <div class="row"><span>${t('idNumber')}:</span><span>${firstStudent?.idNumber || '—'}</span></div>
+          <div class="row"><span>${t('parentName')}:</span><span>${firstStudent?.parentName || '—'}</span></div>
+        </div>` : ''}
+        <p style="font-size:13px;color:#666;margin-bottom:8px;">${t('items')}: ${selected.length}</p>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+          <thead>
+            <tr>
+              <th style="padding:6px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:12px;">#</th>
+              ${studentHeader}
+              <th style="padding:6px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:12px;">${t('feeType')}</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:12px;">${t('date')}</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:12px;text-align:right;">${t('amount')}</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:12px;text-align:right;">${t('discount')}</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:12px;text-align:right;">${t('finalAmount')}</th>
+            </tr>
+          </thead>
+          <tbody>${itemRows}</tbody>
+          <tfoot>
+            <tr style="font-weight:bold;background:#f9f9f9;">
+              <td colspan="${isSingleStudent ? 3 : 4}" style="padding:8px;border:1px solid #ddd;font-size:13px;">${t('grandTotal')}</td>
+              <td style="padding:8px;border:1px solid #ddd;font-size:13px;text-align:right;">${fmtAFN(totalAmount)}</td>
+              <td style="padding:8px;border:1px solid #ddd;font-size:13px;text-align:right;color:#e53e3e;">${totalDiscount > 0 ? fmtAFN(totalDiscount) : '—'}</td>
+              <td style="padding:8px;border:1px solid #ddd;font-size:13px;text-align:right;">${fmtAFN(grandTotal)}</td>
+            </tr>
+          </tfoot>
+        </table>
+        <div style="font-size:12px;color:#666;">
+          <div class="row"><span>Time:</span><span>${now}</span></div>
+        </div>
+        <div style="text-align:center;margin-top:20px;padding-top:12px;border-top:1px dashed #ccc;font-size:11px;color:#aaa;">
+          <p style="margin:0;">Thank you / تشکر از پرداخت شما</p>
+        </div>
+      </div>`;
+    printHTML(t('combinedReceipt'), receiptHTML);
     setSelectedPayments(new Set());
   };
 
@@ -231,6 +299,8 @@ const FeesPage = () => {
           const student = students.find(s => s.id === studentId);
           const isExpanded = expandedStudent === studentId;
           const totalPaid = studentPayments.reduce((sum, p) => sum + p.finalAmount, 0);
+          const monthGroups = groupByMonth(studentPayments);
+
           return (
             <div key={studentId} className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
               <button
@@ -246,7 +316,7 @@ const FeesPage = () => {
               </button>
 
               {isExpanded && (
-                <div className="border-t border-border divide-y divide-border">
+                <div className="border-t border-border">
                   {/* Quick Add Inline Form */}
                   {quickAdd === studentId ? (
                     <div className="px-4 py-3 space-y-2 bg-muted/50">
@@ -276,13 +346,13 @@ const FeesPage = () => {
                     </div>
                   ) : (
                     <button onClick={() => { setQuickAdd(studentId); setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' }); }}
-                      className="w-full px-4 py-2.5 text-sm font-medium text-primary hover:bg-muted/50 flex items-center justify-center gap-1">
+                      className="w-full px-4 py-2.5 text-sm font-medium text-primary hover:bg-muted/50 flex items-center justify-center gap-1 border-b border-border">
                       <Plus size={14} /> {t('addFee')}
                     </button>
                   )}
 
                   {/* Select All for this student */}
-                  <div className="px-4 py-2 flex items-center gap-2">
+                  <div className="px-4 py-2 flex items-center gap-2 border-b border-border bg-muted/30">
                     <input type="checkbox"
                       checked={studentPayments.every(p => selectedPayments.has(p.id))}
                       onChange={() => toggleSelectAll(studentPayments)}
@@ -290,26 +360,57 @@ const FeesPage = () => {
                     <span className="text-xs text-muted-foreground">{t('selectAll')}</span>
                   </div>
 
-                  {studentPayments.map(p => (
-                    <div key={p.id} className="px-4 py-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <input type="checkbox"
-                          checked={selectedPayments.has(p.id)}
-                          onChange={() => toggleSelect(p.id)}
-                          className="rounded border-border accent-primary w-4 h-4 shrink-0" />
-                        <div>
-                          <p className="text-xs text-foreground">{feeTypeLabel(p.feeType, t, p.customFeeLabel)} · {fmtAFN(p.finalAmount)}</p>
-                          <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${toWestern(p.billNumber)}` : ''}</p>
-                        </div>
+                  {/* Payments grouped by Shamsi month */}
+                  {[...monthGroups.entries()].map(([monthKey, monthPayments]) => {
+                    const [yearStr, monthStr] = monthKey.split('-');
+                    const year = parseInt(yearStr);
+                    const month = parseInt(monthStr);
+                    const monthLabel = formatShamsiMonth(year, month, lang);
+                    const monthTotal = monthPayments.reduce((s, p) => s + p.finalAmount, 0);
+                    const isMonthExpanded = expandedMonths.has(`${studentId}-${monthKey}`);
+                    const toggleKey = `${studentId}-${monthKey}`;
+
+                    return (
+                      <div key={monthKey}>
+                        <button
+                          onClick={() => toggleMonth(toggleKey)}
+                          className="w-full flex items-center justify-between px-4 py-2.5 bg-muted/20 hover:bg-muted/40 transition-colors border-b border-border"
+                        >
+                          <div className="flex items-center gap-2">
+                            <ChevronRight size={14} className={`text-muted-foreground transition-transform ${isMonthExpanded ? 'rotate-90' : ''}`} />
+                            <span className="text-xs font-semibold text-foreground">{monthLabel}</span>
+                            <span className="text-xs text-muted-foreground">({monthPayments.length})</span>
+                          </div>
+                          <span className="text-xs font-semibold text-primary">{fmtAFN(monthTotal)}</span>
+                        </button>
+
+                        {isMonthExpanded && (
+                          <div className="divide-y divide-border">
+                            {monthPayments.map(p => (
+                              <div key={p.id} className="px-4 py-3 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <input type="checkbox"
+                                    checked={selectedPayments.has(p.id)}
+                                    onChange={() => toggleSelect(p.id)}
+                                    className="rounded border-border accent-primary w-4 h-4 shrink-0" />
+                                  <div>
+                                    <p className="text-xs text-foreground">{feeTypeLabel(p.feeType, t, p.customFeeLabel)} · {fmtAFN(p.finalAmount)}</p>
+                                    <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${toWestern(p.billNumber)}` : ''}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <button onClick={() => showReceipt(p)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"><FileText size={14} /></button>
+                                  <button onClick={() => sendWhatsApp(p)} className="p-1.5 rounded-lg hover:bg-muted text-green-600"><MessageCircle size={14} /></button>
+                                  <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={14} /></button>
+                                  <button onClick={() => setDeleteId(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={14} /></button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => showReceipt(p)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"><FileText size={14} /></button>
-                        <button onClick={() => sendWhatsApp(p)} className="p-1.5 rounded-lg hover:bg-muted text-green-600"><MessageCircle size={14} /></button>
-                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={14} /></button>
-                        <button onClick={() => setDeleteId(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={14} /></button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
