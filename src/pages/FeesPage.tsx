@@ -33,7 +33,7 @@ const FeesPage = () => {
   const [form, setForm] = useState(emptyForm());
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<string | null>(null);
-  const [quickForm, setQuickForm] = useState({ feeType: 'tuition' as FeeType, amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] });
+  const [quickForm, setQuickForm] = useState({ feeType: 'tuition' as FeeType, amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
   const [studentPopoverOpen, setStudentPopoverOpen] = useState(false);
 
   const activeStudents = students.filter(s => s.status === 'active');
