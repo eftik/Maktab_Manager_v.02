@@ -129,6 +129,8 @@ const T = {
     more:'نور', staffMember:'کارکوونکی', archivedStudents:'آرشیف شوي زدکونکي',
     activeStudents:'فعال زدکونکي', income:'عواید', profit:'ګټه',
     allCategories:'ټولې کټګورۍ', customCategory:'خپله کټګوري',
+    grades:'ټولګي', section:'برخه', addGrade:'ټولګی اضافه', manageGrades:'ټولګي اداره',
+    gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
   },
 } as const;
 
