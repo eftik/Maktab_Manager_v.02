@@ -172,8 +172,12 @@ const FeesPage = () => {
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
                         <input type="text" placeholder={t('billNumber')} value={quickForm.billNumber} onChange={e => setQuickForm({ ...quickForm, billNumber: e.target.value })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
-                      </div>
-                      <ShamsiDatePicker value={quickForm.date} onChange={d => setQuickForm({ ...quickForm, date: d })} />
+                       </div>
+                       {quickForm.feeType === 'other' && (
+                         <input type="text" placeholder={t('customFeeLabel')} value={quickForm.customFeeLabel} onChange={e => setQuickForm({ ...quickForm, customFeeLabel: e.target.value })}
+                           className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                       )}
+                       <ShamsiDatePicker value={quickForm.date} onChange={d => setQuickForm({ ...quickForm, date: d })} />
                       <div className="flex gap-2">
                         <button onClick={() => handleQuickSave(studentId)} className="flex-1 bg-primary text-primary-foreground py-2 rounded-xl text-sm font-medium">{t('save')}</button>
                         <button onClick={() => setQuickAdd(null)} className="px-4 py-2 rounded-xl border border-border text-sm text-muted-foreground">{t('cancel')}</button>
