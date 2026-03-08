@@ -59,7 +59,8 @@ const T = {
     passcodeMismatch:'Passcodes do not match', createOwner:'Create Owner Account',
     transferOwnership:'Transfer Ownership', newOwner:'New Owner',
     currentPasscode:'Current Master Passcode', newPasscode:'New Master Passcode (optional)',
-    checkingSetup:'Checking setup...', 
+    checkingSetup:'Checking setup...', changePassword:'leave blank to keep',
+    editAdmin:'Edit Admin',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
