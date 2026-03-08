@@ -47,6 +47,9 @@ const T = {
     gradeLabel:'Grade', sectionLabel:'Section', noGrades:'No grades defined',
     monthlyBreakdown:'Monthly Breakdown', unpaidFees:'Unpaid Fees', estimated:'Estimated',
     monthly:'Monthly', total:'Total', importExcel:'Import Excel', rows:'rows',
+    quarterly:'Quarterly', yearly:'Yearly', custom:'Custom', period:'Period',
+    fromDate:'From', toDate:'To', allTime:'All Time', q1:'Q1 (Hamal-Jawza)',
+    q2:'Q2 (Saratan-Sunbula)', q3:'Q3 (Mizan-Qaws)', q4:'Q4 (Jadi-Hoot)',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -92,6 +95,9 @@ const T = {
     gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
     monthlyBreakdown:'تفکیک ماهانه', unpaidFees:'فیس‌های پرداخت نشده', estimated:'تخمینی',
     monthly:'ماهانه', total:'مجموع', importExcel:'وارد کردن اکسل', rows:'ردیف',
+    quarterly:'ربع‌وار', yearly:'سالانه', custom:'سفارشی', period:'دوره',
+    fromDate:'از تاریخ', toDate:'تا تاریخ', allTime:'همه',  q1:'ربع ۱ (حمل-جوزا)',
+    q2:'ربع ۲ (سرطان-سنبله)', q3:'ربع ۳ (میزان-قوس)', q4:'ربع ۴ (جدی-حوت)',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -137,6 +143,9 @@ const T = {
     gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
     monthlyBreakdown:'میاشتني توضیحات', unpaidFees:'نه ورکړل شوي فیسونه', estimated:'اټکل شوی',
     monthly:'میاشتني', total:'ټول', importExcel:'اکسل واردول', rows:'ردۍ',
+    quarterly:'ربعي', yearly:'کلنی', custom:'خپل', period:'دوره',
+    fromDate:'له', toDate:'تر', allTime:'ټول', q1:'ربع ۱ (وری-غبرګولی)',
+    q2:'ربع ۲ (چنګاښ-وږی)', q3:'ربع ۳ (تله-لیندۍ)', q4:'ربع ۴ (مرغومی-کب)',
   },
 } as const;
 
