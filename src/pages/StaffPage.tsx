@@ -126,6 +126,8 @@ const StaffPage = () => {
         </select>
       </div>
 
+      {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
+
 
       <div className="space-y-3">
         {filtered.map(s => (
