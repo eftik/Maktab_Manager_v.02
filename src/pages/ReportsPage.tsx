@@ -1,16 +1,77 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart } from 'lucide-react';
+import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart, Upload, X, FileSpreadsheet } from 'lucide-react';
 import { fmtAFN, toCSV, downloadFile, printHTML } from '@/lib/helpers';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toShamsi, formatShamsiMonth, getShamsiMonthsRange } from '@/lib/shamsi';
 import type { FeeType, ExpenseCategory } from '@/types';
+import * as XLSX from 'xlsx';
+
+interface ExcelRow {
+  [key: string]: string | number | undefined;
+}
+
+interface ImportedReportData {
+  fileName: string;
+  headers: string[];
+  rows: ExcelRow[];
+  summary: { label: string; value: string | number }[];
+}
 
 const ReportsPage = () => {
   const { t, lang } = useLanguage();
   const { schools, students, payments, expenses } = useData();
   const [schoolFilter, setSchoolFilter] = useState('');
+  const [importedData, setImportedData] = useState<ImportedReportData | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // --- Excel Import Logic ---
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = evt.target?.result;
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json<ExcelRow>(sheet, { defval: '' });
+
+      if (jsonData.length === 0) return;
+
+      const headers = Object.keys(jsonData[0]);
+      
+      // Auto-detect numeric columns for summary
+      const numericCols = headers.filter(h => {
+        return jsonData.some(row => {
+          const v = row[h];
+          return typeof v === 'number' || (typeof v === 'string' && !isNaN(Number(v)) && v.trim() !== '');
+        });
+      });
+
+      const summary = numericCols.map(col => {
+        const total = jsonData.reduce((sum, row) => {
+          const val = Number(row[col]);
+          return sum + (isNaN(val) ? 0 : val);
+        }, 0);
+        return { label: col, value: total };
+      });
+
+      // Add row count
+      summary.unshift({ label: t('totalStudents'), value: jsonData.length });
+
+      setImportedData({
+        fileName: file.name,
+        headers,
+        rows: jsonData,
+        summary,
+      });
+    };
+    reader.readAsBinaryString(file);
+    if (fileRef.current) fileRef.current.value = '';
+  };
 
   // Filter data by school
   const filteredPayments = useMemo(() => 
@@ -118,7 +179,6 @@ const ReportsPage = () => {
           );
           if (!paid) {
             hasUnpaid = true;
-            // Estimate unpaid amount (could be improved with actual fee schedules)
             totalUnpaid += feeType === 'tuition' ? 5000 : feeType === 'transportation' ? 1500 : 500;
           }
         });
@@ -146,6 +206,14 @@ const ReportsPage = () => {
   };
 
   const handlePrint = () => {
+    let extraHTML = '';
+    if (importedData) {
+      extraHTML = `
+        <h2 style="margin-top:24px">📁 ${importedData.fileName}</h2>
+        <table><thead><tr>${importedData.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${importedData.rows.slice(0, 50).map(r => `<tr>${importedData.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}</tr>`).join('')}</tbody></table>
+      `;
+    }
     printHTML(t('monthlyReport'), `
       <h1>📊 ${t('monthlyReport')}</h1>
       <div class="row"><span>${t('totalStudents')}</span><span>${stats.totalStudents}</span></div>
@@ -155,6 +223,7 @@ const ReportsPage = () => {
       <h2 style="margin-top:24px">📅 ${t('monthlyBreakdown')}</h2>
       <table><thead><tr><th>${t('month')}</th><th>${t('income')}</th><th>${t('expenses')}</th><th>${t('profit')}</th></tr></thead>
       <tbody>${monthlyData.map(m => `<tr><td>${m.month}</td><td>${fmtAFN(m.income)}</td><td>${fmtAFN(m.expenses)}</td><td>${fmtAFN(m.income - m.expenses)}</td></tr>`).join('')}</tbody></table>
+      ${extraHTML}
     `);
   };
 
@@ -163,13 +232,77 @@ const ReportsPage = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <h2 className="font-bold text-lg text-foreground">{t('reports')}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-lg text-foreground">{t('reports')}</h2>
+        <label className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-2 rounded-xl text-xs font-medium cursor-pointer active:scale-95 transition-transform">
+          <Upload size={16} />
+          {t('importExcel')}
+          <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileImport} />
+        </label>
+      </div>
 
       <select value={schoolFilter} onChange={e => setSchoolFilter(e.target.value)}
         className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground">
         <option value="">{t('allSchools')}</option>
         {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
       </select>
+
+      {/* Imported Excel Data */}
+      {importedData && (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between bg-primary/10 px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <FileSpreadsheet size={18} className="text-primary" />
+              <span className="text-sm font-semibold text-foreground">{importedData.fileName}</span>
+              <span className="text-xs text-muted-foreground">({importedData.rows.length} {t('rows')})</span>
+            </div>
+            <button onClick={() => setImportedData(null)} className="p-1 rounded-lg hover:bg-muted transition-colors">
+              <X size={16} className="text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Summary from Excel */}
+          <div className="grid grid-cols-2 gap-2 p-3">
+            {importedData.summary.map((item, i) => (
+              <div key={i} className="bg-muted/50 rounded-xl p-3">
+                <p className="text-[10px] text-muted-foreground truncate">{item.label}</p>
+                <p className="text-sm font-bold text-foreground">
+                  {typeof item.value === 'number' ? item.value.toLocaleString() : item.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Data Table Preview */}
+          <div className="overflow-x-auto max-h-64 overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead className="bg-muted/50 sticky top-0">
+                <tr>
+                  <th className="px-3 py-2 text-start font-medium text-muted-foreground">#</th>
+                  {importedData.headers.map(h => (
+                    <th key={h} className="px-3 py-2 text-start font-medium text-muted-foreground whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {importedData.rows.slice(0, 30).map((row, i) => (
+                  <tr key={i} className="border-t border-border/50">
+                    <td className="px-3 py-2 text-muted-foreground">{i + 1}</td>
+                    {importedData.headers.map(h => (
+                      <td key={h} className="px-3 py-2 text-foreground whitespace-nowrap">{String(row[h] ?? '')}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {importedData.rows.length > 30 && (
+              <p className="text-center text-xs text-muted-foreground py-2">
+                +{importedData.rows.length - 30} {t('more')}...
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-3">
@@ -221,7 +354,6 @@ const ReportsPage = () => {
           </TabsTrigger>
         </TabsList>
 
-        {/* Monthly Breakdown */}
         <TabsContent value="monthly" className="mt-3 space-y-2">
           {monthlyData.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-8">{t('noData')}</p>
@@ -250,7 +382,6 @@ const ReportsPage = () => {
           )}
         </TabsContent>
 
-        {/* Fee Type Breakdown */}
         <TabsContent value="fees" className="mt-3 space-y-3">
           {feeTypeData.map((f, i) => (
             <div key={i} className="bg-card border border-border rounded-xl p-3">
@@ -259,14 +390,9 @@ const ReportsPage = () => {
                 <span className="text-sm font-bold text-foreground">{fmtAFN(f.amount)}</span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className={`h-full ${f.color} rounded-full transition-all`}
-                  style={{ width: totalFeeAmount > 0 ? `${(f.amount / totalFeeAmount) * 100}%` : '0%' }}
-                />
+                <div className={`h-full ${f.color} rounded-full transition-all`} style={{ width: totalFeeAmount > 0 ? `${(f.amount / totalFeeAmount) * 100}%` : '0%' }} />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {totalFeeAmount > 0 ? ((f.amount / totalFeeAmount) * 100).toFixed(1) : 0}%
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">{totalFeeAmount > 0 ? ((f.amount / totalFeeAmount) * 100).toFixed(1) : 0}%</p>
             </div>
           ))}
           <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
@@ -277,7 +403,6 @@ const ReportsPage = () => {
           </div>
         </TabsContent>
 
-        {/* Expense Categories */}
         <TabsContent value="expenses" className="mt-3 space-y-3">
           {expenseCategoryData.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-8">{t('noData')}</p>
@@ -289,14 +414,9 @@ const ReportsPage = () => {
                   <span className="text-sm font-bold text-foreground">{fmtAFN(e.amount)}</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full ${e.color} rounded-full transition-all`}
-                    style={{ width: totalExpenseAmount > 0 ? `${(e.amount / totalExpenseAmount) * 100}%` : '0%' }}
-                  />
+                  <div className={`h-full ${e.color} rounded-full transition-all`} style={{ width: totalExpenseAmount > 0 ? `${(e.amount / totalExpenseAmount) * 100}%` : '0%' }} />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {totalExpenseAmount > 0 ? ((e.amount / totalExpenseAmount) * 100).toFixed(1) : 0}%
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{totalExpenseAmount > 0 ? ((e.amount / totalExpenseAmount) * 100).toFixed(1) : 0}%</p>
               </div>
             ))
           )}
