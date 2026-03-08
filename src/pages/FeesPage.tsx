@@ -7,7 +7,7 @@ import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN, printHTML, toWestern } from '@/lib/helpers';
+import { fmtAFN, printHTML, toWestern, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
