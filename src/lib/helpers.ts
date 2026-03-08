@@ -9,7 +9,7 @@ export const toWestern = (v: string | number): string => {
 };
 
 /** Format number with AFN symbol, always Western digits */
-export const fmtAFN = (n: number): string => `؋${toWestern(n.toLocaleString('en-US'))}`;
+export const fmtAFN = (n: number | undefined | null): string => `؋${toWestern((n ?? 0).toLocaleString('en-US'))}`;
 
 /** Generate CSV from rows */
 export const toCSV = (headers: string[], rows: string[][]): string => {
