@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Lock, Mail, Eye, EyeOff, LogIn } from 'lucide-react';
 
 const LoginPage = () => {
@@ -11,14 +12,36 @@ const LoginPage = () => {
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setForgotMsg('');
     setLoading(true);
     const err = await signIn(email.trim(), password);
     if (err) setError(err);
     setLoading(false);
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError(t('enterEmailFirst' as any));
+      return;
+    }
+    setForgotLoading(true);
+    setError('');
+    setForgotMsg('');
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) {
+      setError(error.message);
+    } else {
+      setForgotMsg(t('resetEmailSent' as any));
+    }
+    setForgotLoading(false);
   };
 
   return (
