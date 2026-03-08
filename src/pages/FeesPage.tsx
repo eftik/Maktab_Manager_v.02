@@ -81,9 +81,6 @@ const FeesPage = () => {
     const s = students.find(st => st.id === studentId);
     setForm({ ...form, studentId, schoolId: s?.schoolId || form.schoolId });
   };
-    const s = students.find(st => st.id === studentId);
-    setForm({ ...form, studentId, schoolId: s?.schoolId || form.schoolId });
-  };
 
   const studentName = (id: string) => students.find(s => s.id === id)?.name || '';
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
