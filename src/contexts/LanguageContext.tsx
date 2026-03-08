@@ -45,6 +45,8 @@ const T = {
     allCategories:'All Categories', customCategory:'Custom Category',
     grades:'Grades', section:'Section', addGrade:'Add Grade', manageGrades:'Manage Grades',
     gradeLabel:'Grade', sectionLabel:'Section', noGrades:'No grades defined',
+    monthlyBreakdown:'Monthly Breakdown', unpaidFees:'Unpaid Fees', estimated:'Estimated',
+    monthly:'Monthly', total:'Total',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -88,6 +90,8 @@ const T = {
     allCategories:'همه کتگوری‌ها', customCategory:'کتگوری سفارشی',
     grades:'صنوف', section:'بخش', addGrade:'اضافه کردن صنف', manageGrades:'مدیریت صنوف',
     gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
+    monthlyBreakdown:'تفکیک ماهانه', unpaidFees:'فیس‌های پرداخت نشده', estimated:'تخمینی',
+    monthly:'ماهانه', total:'مجموع',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -131,6 +135,8 @@ const T = {
     allCategories:'ټولې کټګورۍ', customCategory:'خپله کټګوري',
     grades:'ټولګي', section:'برخه', addGrade:'ټولګی اضافه', manageGrades:'ټولګي اداره',
     gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
+    monthlyBreakdown:'میاشتني توضیحات', unpaidFees:'نه ورکړل شوي فیسونه', estimated:'اټکل شوی',
+    monthly:'میاشتني', total:'ټول',
   },
 } as const;
 
