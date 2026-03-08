@@ -27,7 +27,9 @@ const StudentsPage = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm());
 
-  const grades = [...new Set(students.map(s => s.grade))].filter(Boolean);
+  const allGrades = [...new Set(students.map(s => s.grade))].filter(Boolean);
+  const selectedSchool = schools.find(s => s.id === form.schoolId);
+  const schoolGrades = selectedSchool?.grades || [];
   const filtered = students
     .filter(s => showArchived ? s.status === 'archived' : s.status === 'active')
     .filter(s => !schoolFilter || s.schoolId === schoolFilter)
