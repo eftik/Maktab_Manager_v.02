@@ -31,7 +31,8 @@ export const formatShamsi = (date: Date | string | undefined | null, lang: Langu
   return `${day} ${shamsiMonths[lang][month - 1]} ${year}`;
 };
 
-export const formatShamsiShort = (date: Date | string): string => {
+export const formatShamsiShort = (date: Date | string | undefined | null): string => {
+  if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
   const { year, month, day } = toShamsi(d);
