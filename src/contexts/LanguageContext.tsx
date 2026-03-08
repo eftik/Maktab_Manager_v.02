@@ -46,7 +46,7 @@ const T = {
     grades:'Grades', section:'Section', addGrade:'Add Grade', manageGrades:'Manage Grades',
     gradeLabel:'Grade', sectionLabel:'Section', noGrades:'No grades defined',
     monthlyBreakdown:'Monthly Breakdown', unpaidFees:'Unpaid Fees', estimated:'Estimated',
-    monthly:'Monthly', total:'Total',
+    monthly:'Monthly', total:'Total', importExcel:'Import Excel', rows:'rows',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -91,7 +91,7 @@ const T = {
     grades:'صنوف', section:'بخش', addGrade:'اضافه کردن صنف', manageGrades:'مدیریت صنوف',
     gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
     monthlyBreakdown:'تفکیک ماهانه', unpaidFees:'فیس‌های پرداخت نشده', estimated:'تخمینی',
-    monthly:'ماهانه', total:'مجموع',
+    monthly:'ماهانه', total:'مجموع', importExcel:'وارد کردن اکسل', rows:'ردیف',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -136,7 +136,7 @@ const T = {
     grades:'ټولګي', section:'برخه', addGrade:'ټولګی اضافه', manageGrades:'ټولګي اداره',
     gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
     monthlyBreakdown:'میاشتني توضیحات', unpaidFees:'نه ورکړل شوي فیسونه', estimated:'اټکل شوی',
-    monthly:'میاشتني', total:'ټول',
+    monthly:'میاشتني', total:'ټول', importExcel:'اکسل واردول', rows:'ردۍ',
   },
 } as const;
 
