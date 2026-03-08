@@ -20,6 +20,8 @@ const StaffPage = () => {
   const { t, lang } = useLanguage();
   const { schools, staffList, expenses, addStaff, updateStaff, deleteStaff, addExpense } = useData();
   const [search, setSearch] = useState('');
+  const [schoolFilter, setSchoolFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<StaffT | null>(null);
   const [viewStaff, setViewStaff] = useState<StaffT | null>(null);
@@ -30,7 +32,10 @@ const StaffPage = () => {
   const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
-  const filtered = staffList.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = staffList
+    .filter(s => !schoolFilter || s.schoolId === schoolFilter)
+    .filter(s => !roleFilter || s.role === roleFilter)
+    .filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
   const salaryPayments = (staffId: string) => expenses.filter(e => e.staffId === staffId && e.category === 'salary');
   const totalPaid = (staffId: string) => salaryPayments(staffId).reduce((s, e) => s + e.amount, 0);
@@ -108,7 +113,21 @@ const StaffPage = () => {
         <button onClick={openAdd} className="bg-primary text-primary-foreground p-2.5 rounded-xl"><Plus size={20} /></button>
       </div>
 
+      <div className="flex gap-2">
+        <select value={schoolFilter} onChange={e => setSchoolFilter(e.target.value)}
+          className="flex-1 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground">
+          <option value="">{t('allSchools')}</option>
+          {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
+          className="flex-1 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground">
+          <option value="">{t('role')}</option>
+          {roles.map(r => <option key={r} value={r}>{t(roleKey[r] as any)}</option>)}
+        </select>
+      </div>
+
       {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
+
 
       <div className="space-y-3">
         {filtered.map(s => (
