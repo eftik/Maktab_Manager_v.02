@@ -162,7 +162,7 @@ const FeesPage = () => {
                       <div className="flex gap-2">
                         <select value={quickForm.feeType} onChange={e => setQuickForm({ ...quickForm, feeType: e.target.value as FeeType })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground">
-                          {feeTypes.map(ft => <option key={ft} value={ft}>{t(ft)}</option>)}
+                         {feeTypes.map(ft => <option key={ft} value={ft}>{ft === 'other' ? t('otherFee') : t(ft)}</option>)}
                         </select>
                         <input type="text" inputMode="numeric" placeholder={t('amount')} value={numDisplay(quickForm.amount)} onChange={e => setQuickForm({ ...quickForm, amount: parseNumInput(e.target.value) })}
                           className="w-24 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
