@@ -194,6 +194,9 @@ const T = {
     editAdmin:'مدیر سمول',
     printSelected:'انتخاب شوي چاپ کول',
     selectAll:'ټول انتخاب',
+    combinedReceipt:'ګډ رسید',
+    grandTotal:'ټوله مجموعه',
+    items:'توکي',
   },
 } as const;
 
