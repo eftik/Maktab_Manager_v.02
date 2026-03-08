@@ -4,8 +4,9 @@ import { useData } from '@/contexts/DataContext';
 import type { Student } from '@/types';
 import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
-import { formatShamsi } from '@/lib/shamsi';
+import { formatShamsi, getShamsiMonthsRange, formatShamsiMonth, toShamsi } from '@/lib/shamsi';
 import { fmtAFN } from '@/lib/helpers';
+import type { FeeType } from '@/types';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const emptyForm = () => ({
