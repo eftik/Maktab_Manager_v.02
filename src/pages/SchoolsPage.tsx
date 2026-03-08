@@ -157,10 +157,10 @@ const SchoolsPage = () => {
                   className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
                 <input value={newSection} onChange={e => setNewSection(e.target.value)} placeholder={t('sectionLabel')}
                   className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
-                <button onClick={addGradeSection} className="bg-primary text-primary-foreground px-3 py-2 rounded-xl text-sm">
-                  <Plus size={16} />
-                </button>
               </div>
+              <button onClick={addGradeSection} className="w-full bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-1.5">
+                <Plus size={16} /> {t('add')}
+              </button>
             </div>
 
             <button onClick={handleSave} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium">{t('save')}</button>
