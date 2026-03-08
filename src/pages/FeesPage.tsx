@@ -26,6 +26,7 @@ const FeesPage = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Payment | null>(null);
   const [form, setForm] = useState(emptyForm());
+  const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
 
   const activeStudents = students.filter(s => s.status === 'active');
 
