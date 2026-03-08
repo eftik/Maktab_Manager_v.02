@@ -7,7 +7,7 @@ import { CheckCircle, MessageCircle, FileText, Filter } from 'lucide-react';
 const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
 
 const FeesPage = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { students, schools, payments, updatePayment, generateMonthlyFees } = useData();
   const [monthFilter, setMonthFilter] = useState(months[new Date().getMonth()]);
   const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
