@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Student } from '@/types';
-import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft, AlertCircle, MessageCircle, Upload } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi, getShamsiMonthsRange, formatShamsiMonth, toShamsi } from '@/lib/shamsi';
 import { fmtAFN } from '@/lib/helpers';
 import type { FeeType } from '@/types';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import ImportDialog from '@/components/ImportDialog';
 
 const emptyForm = () => ({
   name: '', idNumber: '', grade: '', parentName: '', parentPhone: '',
@@ -27,6 +28,7 @@ const StudentsPage = () => {
   const [viewStudent, setViewStudent] = useState<Student | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm());
+  const [showImport, setShowImport] = useState(false);
 
   const allGrades = [...new Set(students.map(s => s.grade))].filter(Boolean);
   const selectedSchool = schools.find(s => s.id === form.schoolId);
@@ -76,6 +78,15 @@ const StudentsPage = () => {
 
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
 
+  const sendWhatsApp = (student: Student, unpaidMonths: { year: number; month: number; feeType: FeeType }[]) => {
+    const phone = student.parentPhone.replace(/[^0-9+]/g, '');
+    if (!phone) return;
+    const monthList = [...new Set(unpaidMonths.map(u => formatShamsiMonth(u.year, u.month, lang)))];
+    const feeList = [...new Set(unpaidMonths.map(u => t(u.feeType)))];
+    const msg = `سلام ${student.parentName} صاحب،\n\nاحتراماً به اطلاع شما میرسانیم که فیس ${feeList.join('، ')} شاگرد ${student.name} برای ماه‌های ${monthList.join('، ')} پرداخت نشده است.\n\nلطفاً هر چه زودتر اقدام فرمایید.\n\nبا احترام،\n${schoolName(student.schoolId)}`;
+    window.open(`https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   if (viewStudent) {
     const sp = payments.filter(p => p.studentId === viewStudent.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
@@ -121,9 +132,15 @@ const StudentsPage = () => {
           });
           return (
             <div className="space-y-2">
-              <h3 className="font-semibold text-destructive flex items-center gap-1.5">
-                <AlertCircle size={16} /> {t('unpaid')} {lang === 'en' ? 'Months' : lang === 'da' ? 'ماه‌ها' : 'میاشتونه'}
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-destructive flex items-center gap-1.5">
+                  <AlertCircle size={16} /> {t('unpaid')} {lang === 'en' ? 'Months' : lang === 'da' ? 'ماه‌ها' : 'میاشتونه'}
+                </h3>
+                <button onClick={() => sendWhatsApp(viewStudent, unpaid)}
+                  className="flex items-center gap-1.5 bg-green-600 text-white px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-green-700 transition-colors">
+                  <MessageCircle size={14} /> {t('whatsappReminder')}
+                </button>
+              </div>
               <div className="space-y-1.5">
                 {Array.from(grouped.entries()).map(([key, types]) => {
                   const [y, m] = key.split('-').map(Number);
@@ -170,6 +187,7 @@ const StudentsPage = () => {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('search')}
             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground" />
         </div>
+        <button onClick={() => setShowImport(true)} className="bg-secondary text-secondary-foreground p-2.5 rounded-xl"><Upload size={20} /></button>
         <button onClick={openAdd} className="bg-primary text-primary-foreground p-2.5 rounded-xl"><Plus size={20} /></button>
       </div>
 
@@ -291,6 +309,8 @@ const StudentsPage = () => {
           </div>
         </div>
       )}
+
+      <ImportDialog open={showImport} onClose={() => setShowImport(false)} />
     </div>
   );
 };
