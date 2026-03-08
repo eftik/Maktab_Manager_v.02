@@ -162,17 +162,39 @@ const StudentsPage = () => {
 
         <h3 className="font-semibold text-foreground">{t('paymentHistory')}</h3>
         {sp.length === 0 ? <p className="text-muted-foreground text-sm">{t('noData')}</p> : (
-          <div className="space-y-2">
-            {sp.map(p => (
-              <div key={p.id} className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">{t(p.feeType)} — {fmtAFN(p.finalAmount)}</p>
-                  <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${p.billNumber}` : ''}</p>
-                  {p.note && <p className="text-xs text-muted-foreground italic mt-0.5">{p.note}</p>}
-                </div>
-                <span className="text-xs font-medium text-primary">{fmtAFN(p.finalAmount)}</span>
-              </div>
-            ))}
+          <div className="space-y-3">
+            {(() => {
+              const monthGroups = new Map<string, typeof sp>();
+              sp.forEach(p => {
+                const s = toShamsi(new Date(p.date));
+                const key = `${s.year}-${s.month}`;
+                const list = monthGroups.get(key) || [];
+                list.push(p);
+                monthGroups.set(key, list);
+              });
+              return Array.from(monthGroups.entries()).map(([key, pList]) => {
+                const [y, m] = key.split('-').map(Number);
+                const monthTotal = pList.reduce((sum, p) => sum + p.finalAmount, 0);
+                return (
+                  <div key={key} className="space-y-1.5">
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-xs font-semibold text-muted-foreground">{formatShamsiMonth(y, m, lang)}</span>
+                      <span className="text-xs font-semibold text-primary">{fmtAFN(monthTotal)}</span>
+                    </div>
+                    {pList.map(p => (
+                      <div key={p.id} className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{t(p.feeType)} — {fmtAFN(p.finalAmount)}</p>
+                          <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${p.billNumber}` : ''}</p>
+                          {p.note && <p className="text-xs text-muted-foreground italic mt-0.5">{p.note}</p>}
+                        </div>
+                        <span className="text-xs font-medium text-primary">{fmtAFN(p.finalAmount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              });
+            })()}
           </div>
         )}
       </div>
