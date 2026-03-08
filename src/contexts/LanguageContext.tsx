@@ -100,6 +100,8 @@ const T = {
     quarterly:'ربع‌وار', yearly:'سالانه', custom:'سفارشی', period:'دوره',
     fromDate:'از تاریخ', toDate:'تا تاریخ', allTime:'همه',  q1:'ربع ۱ (حمل-جوزا)',
     q2:'ربع ۲ (سرطان-سنبله)', q3:'ربع ۳ (میزان-قوس)', q4:'ربع ۴ (جدی-حوت)',
+    login:'ورود', email:'ایمیل', password:'رمز عبور', logout:'خروج',
+    admins:'مدیران', addAdmin:'اضافه کردن مدیر', owner:'مالک', noAccess:'دسترسی ندارید',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
