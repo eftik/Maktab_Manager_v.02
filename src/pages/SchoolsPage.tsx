@@ -152,11 +152,17 @@ const SchoolsPage = () => {
                   ))}
                 </div>
               )}
-              <div className="flex gap-2">
-                <input value={newGrade} onChange={e => setNewGrade(e.target.value)} placeholder={t('gradeLabel')}
-                  className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
-                <input value={newSection} onChange={e => setNewSection(e.target.value)} placeholder={t('sectionLabel')}
-                  className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">{t('gradeLabel')}</label>
+                  <input value={newGrade} onChange={e => setNewGrade(e.target.value)} placeholder={t('gradeLabel')}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">{t('sectionLabel')}</label>
+                  <input value={newSection} onChange={e => setNewSection(e.target.value)} placeholder={t('sectionLabel')}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                </div>
               </div>
               <button onClick={addGradeSection} className="w-full bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-1.5">
                 <Plus size={16} /> {t('add')}
