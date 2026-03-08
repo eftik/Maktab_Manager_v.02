@@ -43,6 +43,8 @@ const T = {
     more:'More', staffMember:'Staff Member', archivedStudents:'Archived Students',
     activeStudents:'Active Students', income:'Income', profit:'Profit',
     allCategories:'All Categories', customCategory:'Custom Category',
+    grades:'Grades', section:'Section', addGrade:'Add Grade', manageGrades:'Manage Grades',
+    gradeLabel:'Grade', sectionLabel:'Section', noGrades:'No grades defined',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -84,6 +86,8 @@ const T = {
     more:'بیشتر', staffMember:'کارمند', archivedStudents:'شاگردان آرشیف',
     activeStudents:'شاگردان فعال', income:'عواید', profit:'سود',
     allCategories:'همه کتگوری‌ها', customCategory:'کتگوری سفارشی',
+    grades:'صنوف', section:'بخش', addGrade:'اضافه کردن صنف', manageGrades:'مدیریت صنوف',
+    gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -125,6 +129,8 @@ const T = {
     more:'نور', staffMember:'کارکوونکی', archivedStudents:'آرشیف شوي زدکونکي',
     activeStudents:'فعال زدکونکي', income:'عواید', profit:'ګټه',
     allCategories:'ټولې کټګورۍ', customCategory:'خپله کټګوري',
+    grades:'ټولګي', section:'برخه', addGrade:'ټولګی اضافه', manageGrades:'ټولګي اداره',
+    gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
   },
 } as const;
 

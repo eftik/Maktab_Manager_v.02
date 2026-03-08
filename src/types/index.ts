@@ -1,8 +1,14 @@
+export interface GradeSection {
+  grade: string;
+  section: string;
+}
+
 export interface School {
   id: string;
   name: string;
   address: string;
   phone: string;
+  grades: GradeSection[];
 }
 
 export type DiscountType = 'none' | 'percentage' | 'free';

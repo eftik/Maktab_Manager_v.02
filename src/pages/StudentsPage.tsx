@@ -27,7 +27,9 @@ const StudentsPage = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm());
 
-  const grades = [...new Set(students.map(s => s.grade))].filter(Boolean);
+  const allGrades = [...new Set(students.map(s => s.grade))].filter(Boolean);
+  const selectedSchool = schools.find(s => s.id === form.schoolId);
+  const schoolGrades = selectedSchool?.grades || [];
   const filtered = students
     .filter(s => showArchived ? s.status === 'archived' : s.status === 'active')
     .filter(s => !schoolFilter || s.schoolId === schoolFilter)
@@ -121,7 +123,7 @@ const StudentsPage = () => {
         <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
           className="flex-1 min-w-[100px] rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground">
           <option value="">{t('allClasses')}</option>
-          {grades.map(g => <option key={g} value={g}>{g}</option>)}
+          {allGrades.map(g => <option key={g} value={g}>{g}</option>)}
         </select>
         <button onClick={() => setShowArchived(!showArchived)}
           className={`px-3 py-2 rounded-xl text-xs font-medium border ${showArchived ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground'}`}>
@@ -177,13 +179,28 @@ const StudentsPage = () => {
                 {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
-            {[{k:'name',l:'name'},{k:'idNumber',l:'idNumber'},{k:'grade',l:'grade'},{k:'parentName',l:'parentName'},{k:'parentPhone',l:'parentPhone'}].map(f => (
+            {[{k:'name',l:'name'},{k:'idNumber',l:'idNumber'},{k:'parentName',l:'parentName'},{k:'parentPhone',l:'parentPhone'}].map(f => (
               <div key={f.k}>
                 <label className="text-xs font-medium text-muted-foreground">{t(f.l as any)}</label>
                 <input value={(form as any)[f.k]} onChange={e => setForm({ ...form, [f.k]: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             ))}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">{t('grade')}</label>
+              {schoolGrades.length > 0 ? (
+                <select value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground">
+                  <option value="">—</option>
+                  {schoolGrades.map((g, i) => (
+                    <option key={i} value={`${g.grade}-${g.section}`}>{t('gradeLabel' as any)} {g.grade} - {t('sectionLabel' as any)} {g.section}</option>
+                  ))}
+                </select>
+              ) : (
+                <input value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
+              )}
+            </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('discountType')}</label>
               <select value={form.discountType} onChange={e => setForm({ ...form, discountType: e.target.value as any })}
