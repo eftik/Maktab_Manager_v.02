@@ -1,13 +1,16 @@
 import jalaali from 'jalaali-js';
+import type { Language } from '@/types';
 
-const shamsiMonths = {
+const shamsiMonths: Record<Language, string[]> = {
   en: ['Hamal', 'Sawr', 'Jawza', 'Saratan', 'Asad', 'Sunbula', 'Mizan', 'Aqrab', 'Qaws', 'Jadi', 'Dalw', 'Hoot'],
   da: ['حمل', 'ثور', 'جوزا', 'سرطان', 'اسد', 'سنبله', 'میزان', 'عقرب', 'قوس', 'جدی', 'دلو', 'حوت'],
+  ps: ['وری', 'غویی', 'غبرګولی', 'چنګاښ', 'زمری', 'وږی', 'تله', 'لړم', 'لیندۍ', 'مرغومی', 'سلواغه', 'کب'],
 };
 
-const weekDays = {
+const weekDays: Record<Language, string[]> = {
   en: ['Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr'],
   da: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'],
+  ps: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'],
 };
 
 export const toShamsi = (date: Date) => {
@@ -20,12 +23,11 @@ export const toGregorian = (jy: number, jm: number, jd: number) => {
   return new Date(gy, gm - 1, gd);
 };
 
-export const formatShamsi = (date: Date | string, lang: 'en' | 'da' = 'en'): string => {
+export const formatShamsi = (date: Date | string, lang: Language = 'en'): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
   const { year, month, day } = toShamsi(d);
-  const monthName = shamsiMonths[lang][month - 1];
-  return `${day} ${monthName} ${year}`;
+  return `${day} ${shamsiMonths[lang][month - 1]} ${year}`;
 };
 
 export const formatShamsiShort = (date: Date | string): string => {
@@ -35,13 +37,10 @@ export const formatShamsiShort = (date: Date | string): string => {
   return `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
 };
 
-export const getShamsiMonthDays = (jy: number, jm: number): number => {
-  return jalaali.jalaaliMonthLength(jy, jm);
-};
+export const getShamsiMonthDays = (jy: number, jm: number): number => jalaali.jalaaliMonthLength(jy, jm);
 
 export const getShamsiFirstDayOfWeek = (jy: number, jm: number): number => {
   const greg = toGregorian(jy, jm, 1);
-  // Saturday = 0 in our week (Afghan week starts on Saturday)
   return (greg.getDay() + 1) % 7;
 };
 
