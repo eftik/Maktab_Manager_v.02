@@ -13,7 +13,7 @@ const StudentsPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Student | null>(null);
   const [viewStudent, setViewStudent] = useState<Student | null>(null);
-  const [form, setForm] = useState({ name: '', fatherName: '', grade: '', phone: '', monthlyFee: '', enrollmentDate: '', schoolId: '', status: 'active' as const });
+  const [form, setForm] = useState({ name: '', fatherName: '', grade: '', phone: '', monthlyFee: '', enrollmentDate: '', schoolId: '', status: 'active' as 'active' | 'archived' });
 
   const grades = [...new Set(students.map(s => s.grade))].filter(Boolean);
   const filtered = students
