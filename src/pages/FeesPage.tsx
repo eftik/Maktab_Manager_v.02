@@ -253,9 +253,17 @@ const FeesPage = () => {
               <label className="text-xs font-medium text-muted-foreground">{t('feeType')}</label>
               <select value={form.feeType} onChange={e => setForm({ ...form, feeType: e.target.value as FeeType })}
                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground">
-                {feeTypes.map(ft => <option key={ft} value={ft}>{t(ft)}</option>)}
+                {feeTypes.map(ft => <option key={ft} value={ft}>{ft === 'other' ? t('otherFee') : t(ft)}</option>)}
               </select>
             </div>
+            {form.feeType === 'other' && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">{t('customFeeLabel')}</label>
+                <input type="text" value={form.customFeeLabel} onChange={e => setForm({ ...form, customFeeLabel: e.target.value })}
+                  placeholder={t('customFeeLabel')}
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
+              </div>
+            )}
             {[{k:'amount',l:'amount',num:true},{k:'discount',l:'discount',num:true},{k:'billNumber',l:'billNumber',num:false},{k:'note',l:'note',num:false}].map(f => (
               <div key={f.k}>
                 <label className="text-xs font-medium text-muted-foreground">{t(f.l as any)}</label>
