@@ -19,6 +19,8 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          id_number: string
+          phone: string
           role: Database["public"]["Enums"]["admin_role"]
           school_id: string | null
           user_id: string
@@ -27,6 +29,8 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          id_number?: string
+          phone?: string
           role?: Database["public"]["Enums"]["admin_role"]
           school_id?: string | null
           user_id: string
@@ -35,6 +39,8 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          id_number?: string
+          phone?: string
           role?: Database["public"]["Enums"]["admin_role"]
           school_id?: string | null
           user_id?: string

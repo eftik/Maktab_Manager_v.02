@@ -59,7 +59,8 @@ const T = {
     passcodeMismatch:'Passcodes do not match', createOwner:'Create Owner Account',
     transferOwnership:'Transfer Ownership', newOwner:'New Owner',
     currentPasscode:'Current Master Passcode', newPasscode:'New Master Passcode (optional)',
-    checkingSetup:'Checking setup...', 
+    checkingSetup:'Checking setup...', changePassword:'leave blank to keep',
+    editAdmin:'Edit Admin',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -117,7 +118,8 @@ const T = {
     passcodeMismatch:'رمزها مطابقت ندارند', createOwner:'ایجاد حساب مالک',
     transferOwnership:'انتقال مالکیت', newOwner:'مالک جدید',
     currentPasscode:'رمز اصلی فعلی', newPasscode:'رمز اصلی جدید (اختیاری)',
-    checkingSetup:'بررسی تنظیمات...',
+    checkingSetup:'بررسی تنظیمات...', changePassword:'خالی بگذارید تا تغییر نکند',
+    editAdmin:'ویرایش مدیر',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -175,7 +177,8 @@ const T = {
     passcodeMismatch:'پټنومونه سره نه سمون خوري', createOwner:'د مالک حساب جوړول',
     transferOwnership:'د مالکیت لیږد', newOwner:'نوی مالک',
     currentPasscode:'اوسنی اصلي پټنوم', newPasscode:'نوی اصلي پټنوم (اختیاري)',
-    checkingSetup:'ترتیبات چک کول...',
+    checkingSetup:'ترتیبات چک کول...', changePassword:'خالي پرېږدئ ترڅو بدل نشي',
+    editAdmin:'مدیر سمول',
   },
 } as const;
 

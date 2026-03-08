@@ -19,7 +19,6 @@ serve(async (req) => {
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    // Verify caller is owner
     const callerClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -27,36 +26,48 @@ serve(async (req) => {
     if (!caller) throw new Error('Not authenticated');
 
     const adminClient = createClient(supabaseUrl, serviceKey);
-    
+
     const { data: callerAdmin } = await adminClient
       .from('admins')
       .select('role')
       .eq('user_id', caller.id)
       .single();
 
-    if (callerAdmin?.role !== 'owner') throw new Error('Only owner can create admins');
+    if (callerAdmin?.role !== 'owner') throw new Error('Only owner can update admins');
 
-    const { email, password, displayName, schoolId, phone, idNumber } = await req.json();
-    if (!email || !password) throw new Error('Email and password required');
+    const { adminId, displayName, phone, idNumber, password, schoolId } = await req.json();
+    if (!adminId) throw new Error('Admin ID required');
 
-    // Create auth user
-    const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
-    if (createErr) throw createErr;
+    // Update admin record
+    const updateData: Record<string, any> = {};
+    if (displayName !== undefined) updateData.display_name = displayName;
+    if (phone !== undefined) updateData.phone = phone;
+    if (idNumber !== undefined) updateData.id_number = idNumber;
+    if (schoolId !== undefined) updateData.school_id = schoolId || null;
 
-    // Insert admin record
-    const { error: insertErr } = await adminClient.from('admins').insert({
-      user_id: newUser.user.id,
-      role: 'admin',
-      school_id: schoolId || null,
-      display_name: displayName || '',
-      phone: phone || '',
-      id_number: idNumber || '',
-    });
-    if (insertErr) throw insertErr;
+    if (Object.keys(updateData).length > 0) {
+      const { error: updateErr } = await adminClient
+        .from('admins')
+        .update(updateData)
+        .eq('id', adminId);
+      if (updateErr) throw updateErr;
+    }
+
+    // Update password if provided
+    if (password) {
+      const { data: admin } = await adminClient
+        .from('admins')
+        .select('user_id')
+        .eq('id', adminId)
+        .single();
+      if (!admin) throw new Error('Admin not found');
+
+      const { error: pwErr } = await adminClient.auth.admin.updateUserById(
+        admin.user_id,
+        { password }
+      );
+      if (pwErr) throw pwErr;
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
