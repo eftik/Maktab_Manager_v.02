@@ -47,6 +47,9 @@ const T = {
     gradeLabel:'Grade', sectionLabel:'Section', noGrades:'No grades defined',
     monthlyBreakdown:'Monthly Breakdown', unpaidFees:'Unpaid Fees', estimated:'Estimated',
     monthly:'Monthly', total:'Total', importExcel:'Import Excel', rows:'rows',
+    quarterly:'Quarterly', yearly:'Yearly', custom:'Custom', period:'Period',
+    fromDate:'From', toDate:'To', allTime:'All Time', q1:'Q1 (Hamal-Jawza)',
+    q2:'Q2 (Saratan-Sunbula)', q3:'Q3 (Mizan-Qaws)', q4:'Q4 (Jadi-Hoot)',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
