@@ -107,6 +107,42 @@ const StudentsPage = () => {
           <span className="text-lg font-bold text-primary">{fmtAFN(totalPaid)}</span>
         </div>
 
+        {/* Unpaid Months Section */}
+        {(() => {
+          const unpaid = getUnpaidMonths(viewStudent);
+          if (unpaid.length === 0) return null;
+          // Group by month
+          const grouped = new Map<string, FeeType[]>();
+          unpaid.forEach(u => {
+            const key = `${u.year}-${u.month}`;
+            const list = grouped.get(key) || [];
+            list.push(u.feeType);
+            grouped.set(key, list);
+          });
+          return (
+            <div className="space-y-2">
+              <h3 className="font-semibold text-destructive flex items-center gap-1.5">
+                <AlertCircle size={16} /> {t('unpaid')} {lang === 'en' ? 'Months' : lang === 'da' ? 'ماه‌ها' : 'میاشتونه'}
+              </h3>
+              <div className="space-y-1.5">
+                {Array.from(grouped.entries()).map(([key, types]) => {
+                  const [y, m] = key.split('-').map(Number);
+                  return (
+                    <div key={key} className="bg-destructive/5 border border-destructive/20 rounded-xl p-3">
+                      <p className="text-sm font-medium text-foreground">{formatShamsiMonth(y, m, lang)}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {types.map(ft => (
+                          <span key={ft} className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{t(ft)}</span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         <h3 className="font-semibold text-foreground">{t('paymentHistory')}</h3>
         {sp.length === 0 ? <p className="text-muted-foreground text-sm">{t('noData')}</p> : (
           <div className="space-y-2">
