@@ -75,8 +75,7 @@ const ExpensesPage = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('date')}</label>
-              <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
+              <ShamsiDatePicker value={form.date} onChange={d => setForm({ ...form, date: d })} />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('note')}</label>
