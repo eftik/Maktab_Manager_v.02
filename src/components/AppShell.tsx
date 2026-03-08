@@ -58,7 +58,7 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🏫</span>
             <div>
-              <h1 className="text-base font-bold tracking-tight leading-tight">SchoolManager</h1>
+              <h1 className="text-base font-bold tracking-tight leading-tight">Maktab Manager</h1>
               <p className="text-[10px] font-medium text-primary-foreground/70 leading-none mt-0.5">
                 {t(currentPageLabel as any)}
               </p>
