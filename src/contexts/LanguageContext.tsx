@@ -42,6 +42,7 @@ const T = {
     whatsappReminder:'WhatsApp Reminder', darkMode:'Dark Mode', language:'Language',
     more:'More', staffMember:'Staff Member', archivedStudents:'Archived Students',
     activeStudents:'Active Students', income:'Income', profit:'Profit',
+    allCategories:'All Categories', customCategory:'Custom Category',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -82,6 +83,7 @@ const T = {
     whatsappReminder:'یادآوری واتساپ', darkMode:'حالت تاریک', language:'زبان',
     more:'بیشتر', staffMember:'کارمند', archivedStudents:'شاگردان آرشیف',
     activeStudents:'شاگردان فعال', income:'عواید', profit:'سود',
+    allCategories:'همه کتگوری‌ها', customCategory:'کتگوری سفارشی',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -122,6 +124,7 @@ const T = {
     whatsappReminder:'واټساپ یادونه', darkMode:'تیاره حالت', language:'ژبه',
     more:'نور', staffMember:'کارکوونکی', archivedStudents:'آرشیف شوي زدکونکي',
     activeStudents:'فعال زدکونکي', income:'عواید', profit:'ګټه',
+    allCategories:'ټولې کټګورۍ', customCategory:'خپله کټګوري',
   },
 } as const;
 
