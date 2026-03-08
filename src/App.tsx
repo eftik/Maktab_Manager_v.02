@@ -47,18 +47,24 @@ const AuthenticatedApp = () => {
   }, []);
 
   useEffect(() => {
-    checkOwnerExists();
+    // Use the database function directly instead of edge function to avoid cold start delay
+    const checkOwner = async () => {
+      try {
+        const { data, error } = await supabase.rpc('owner_exists');
+        if (error) throw error;
+        setOwnerExists(!!data);
+      } catch {
+        // Fallback to edge function if RPC fails
+        try {
+          const { data } = await supabase.functions.invoke('check-owner-exists');
+          setOwnerExists(data?.exists ?? false);
+        } catch {
+          setOwnerExists(false);
+        }
+      }
+    };
+    checkOwner();
   }, []);
-
-  const checkOwnerExists = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('check-owner-exists');
-      if (error) throw error;
-      setOwnerExists(data?.exists ?? false);
-    } catch {
-      setOwnerExists(false);
-    }
-  };
 
   if (loading || ownerExists === null) {
     return (
