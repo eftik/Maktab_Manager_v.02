@@ -42,6 +42,7 @@ const T = {
     whatsappReminder:'WhatsApp Reminder', darkMode:'Dark Mode', language:'Language',
     more:'More', staffMember:'Staff Member', archivedStudents:'Archived Students',
     activeStudents:'Active Students', income:'Income', profit:'Profit',
+    allCategories:'All Categories', customCategory:'Custom Category',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
