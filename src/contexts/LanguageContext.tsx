@@ -186,6 +186,8 @@ const T = {
     currentPasscode:'اوسنی اصلي پټنوم', newPasscode:'نوی اصلي پټنوم (اختیاري)',
     checkingSetup:'ترتیبات چک کول...', changePassword:'خالي پرېږدئ ترڅو بدل نشي',
     editAdmin:'مدیر سمول',
+    printSelected:'انتخاب شوي چاپ کول',
+    selectAll:'ټول انتخاب',
   },
 } as const;
 

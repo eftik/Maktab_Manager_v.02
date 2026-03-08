@@ -281,11 +281,26 @@ const FeesPage = () => {
                     </button>
                   )}
 
+                  {/* Select All for this student */}
+                  <div className="px-4 py-2 flex items-center gap-2">
+                    <input type="checkbox"
+                      checked={studentPayments.every(p => selectedPayments.has(p.id))}
+                      onChange={() => toggleSelectAll(studentPayments)}
+                      className="rounded border-border accent-primary w-4 h-4" />
+                    <span className="text-xs text-muted-foreground">{t('selectAll')}</span>
+                  </div>
+
                   {studentPayments.map(p => (
                     <div key={p.id} className="px-4 py-3 flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-foreground">{feeTypeLabel(p.feeType, t, p.customFeeLabel)} · {fmtAFN(p.finalAmount)}</p>
-                        <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${toWestern(p.billNumber)}` : ''}</p>
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox"
+                          checked={selectedPayments.has(p.id)}
+                          onChange={() => toggleSelect(p.id)}
+                          className="rounded border-border accent-primary w-4 h-4 shrink-0" />
+                        <div>
+                          <p className="text-xs text-foreground">{feeTypeLabel(p.feeType, t, p.customFeeLabel)} · {fmtAFN(p.finalAmount)}</p>
+                          <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${toWestern(p.billNumber)}` : ''}</p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-1">
                         <button onClick={() => showReceipt(p)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"><FileText size={14} /></button>
