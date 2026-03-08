@@ -58,7 +58,7 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🏫</span>
             <div>
-              <h1 className="text-base font-bold tracking-tight leading-tight">SchoolManager</h1>
+              <h1 className="text-base font-bold tracking-tight leading-tight">Maktab Manager</h1>
               <p className="text-[10px] font-medium text-primary-foreground/70 leading-none mt-0.5">
                 {t(currentPageLabel as any)}
               </p>
@@ -99,7 +99,7 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
                   <span className="text-lg">🏫</span>
                 </div>
                 <div>
-                  <h2 className="font-bold text-foreground text-sm">SchoolManager</h2>
+                  <h2 className="font-bold text-foreground text-sm">Maktab Manager</h2>
                   <p className="text-xs text-muted-foreground">{t('dashboard')}</p>
                 </div>
               </div>
@@ -131,7 +131,7 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
 
             {/* Drawer Footer */}
             <div className="px-5 py-4 border-t border-border pb-safe">
-              <p className="text-[10px] text-muted-foreground text-center">SchoolManager v1.0</p>
+              <p className="text-[10px] text-muted-foreground text-center">Maktab Manager v1.0</p>
             </div>
           </nav>
         </>
