@@ -64,6 +64,9 @@ const T = {
     editAdmin:'Edit Admin',
     printSelected:'Print Selected',
     selectAll:'Select All',
+    combinedReceipt:'Combined Receipt',
+    grandTotal:'Grand Total',
+    items:'Items',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
