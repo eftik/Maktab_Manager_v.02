@@ -5,7 +5,7 @@ import type { Student } from '@/types';
 import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft, AlertCircle, MessageCircle, Upload } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi, getShamsiMonthsRange, formatShamsiMonth, toShamsi } from '@/lib/shamsi';
-import { fmtAFN } from '@/lib/helpers';
+import { fmtAFN, parseNumInput, numDisplay } from '@/lib/helpers';
 import type { FeeType } from '@/types';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import ImportDialog from '@/components/ImportDialog';

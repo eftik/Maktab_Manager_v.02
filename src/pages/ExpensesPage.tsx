@@ -5,7 +5,7 @@ import type { Expense, ExpenseCategory } from '@/types';
 import { Plus, Search, Edit2, Trash2, X } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN } from '@/lib/helpers';
+import { fmtAFN, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const categories: ExpenseCategory[] = ['salary', 'electricity', 'rent', 'maintenance', 'supplies', 'other'];

@@ -5,7 +5,7 @@ import type { Staff as StaffT, StaffRole } from '@/types';
 import { Plus, Search, Edit2, Trash2, X, User, ArrowLeft, DollarSign, ChevronDown, ChevronUp, UserX, UserCheck } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN, uid } from '@/lib/helpers';
+import { fmtAFN, uid, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const roles: StaffRole[] = ['teacher', 'guard', 'admin_staff', 'cleaner', 'driver', 'other'];
