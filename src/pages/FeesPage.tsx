@@ -7,7 +7,7 @@ import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN, printHTML, toWestern } from '@/lib/helpers';
+import { fmtAFN, printHTML, toWestern, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
@@ -158,11 +158,11 @@ const FeesPage = () => {
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground">
                           {feeTypes.map(ft => <option key={ft} value={ft}>{t(ft)}</option>)}
                         </select>
-                        <input type="number" placeholder={t('amount')} value={quickForm.amount || ''} onChange={e => setQuickForm({ ...quickForm, amount: Number(e.target.value) })}
+                        <input type="text" inputMode="numeric" placeholder={t('amount')} value={numDisplay(quickForm.amount)} onChange={e => setQuickForm({ ...quickForm, amount: parseNumInput(e.target.value) })}
                           className="w-24 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
                       </div>
                       <div className="flex gap-2">
-                        <input type="number" placeholder={t('discount')} value={quickForm.discount || ''} onChange={e => setQuickForm({ ...quickForm, discount: Number(e.target.value) })}
+                        <input type="text" inputMode="numeric" placeholder={t('discount')} value={numDisplay(quickForm.discount)} onChange={e => setQuickForm({ ...quickForm, discount: parseNumInput(e.target.value) })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
                         <input type="text" placeholder={t('billNumber')} value={quickForm.billNumber} onChange={e => setQuickForm({ ...quickForm, billNumber: e.target.value })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
@@ -246,10 +246,10 @@ const FeesPage = () => {
                 {feeTypes.map(ft => <option key={ft} value={ft}>{t(ft)}</option>)}
               </select>
             </div>
-            {[{k:'amount',l:'amount',t:'number'},{k:'discount',l:'discount',t:'number'},{k:'billNumber',l:'billNumber',t:'text'},{k:'note',l:'note',t:'text'}].map(f => (
+            {[{k:'amount',l:'amount',num:true},{k:'discount',l:'discount',num:true},{k:'billNumber',l:'billNumber',num:false},{k:'note',l:'note',num:false}].map(f => (
               <div key={f.k}>
                 <label className="text-xs font-medium text-muted-foreground">{t(f.l as any)}</label>
-                <input type={f.t} value={(form as any)[f.k]} onChange={e => setForm({ ...form, [f.k]: f.t === 'number' ? Number(e.target.value) : e.target.value })}
+                <input type="text" inputMode={f.num ? "numeric" : "text"} value={f.num ? numDisplay((form as any)[f.k]) : (form as any)[f.k]} onChange={e => setForm({ ...form, [f.k]: f.num ? parseNumInput(e.target.value) : e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             ))}

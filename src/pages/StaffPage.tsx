@@ -5,7 +5,7 @@ import type { Staff as StaffT, StaffRole } from '@/types';
 import { Plus, Search, Edit2, Trash2, X, User, ArrowLeft, DollarSign, ChevronDown, ChevronUp, UserX, UserCheck } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN, uid } from '@/lib/helpers';
+import { fmtAFN, uid, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const roles: StaffRole[] = ['teacher', 'guard', 'admin_staff', 'cleaner', 'driver', 'other'];
@@ -189,7 +189,7 @@ const StaffPage = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('amount')}</label>
-              <input type="number" value={payAmount} onChange={e => setPayAmount(Number(e.target.value))}
+              <input type="text" inputMode="numeric" value={numDisplay(payAmount)} onChange={e => setPayAmount(parseNumInput(e.target.value))}
                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
             </div>
             <div>
@@ -239,7 +239,7 @@ const StaffPage = () => {
             )}
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('salary')}</label>
-              <input type="number" value={form.salary} onChange={e => setForm({ ...form, salary: Number(e.target.value) })}
+              <input type="text" inputMode="numeric" value={numDisplay(form.salary)} onChange={e => setForm({ ...form, salary: parseNumInput(e.target.value) })}
                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
             </div>
             <div>

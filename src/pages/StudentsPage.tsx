@@ -5,7 +5,7 @@ import type { Student } from '@/types';
 import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft, AlertCircle, MessageCircle, Upload } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi, getShamsiMonthsRange, formatShamsiMonth, toShamsi } from '@/lib/shamsi';
-import { fmtAFN } from '@/lib/helpers';
+import { fmtAFN, parseNumInput, numDisplay } from '@/lib/helpers';
 import type { FeeType } from '@/types';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import ImportDialog from '@/components/ImportDialog';
@@ -297,7 +297,7 @@ const StudentsPage = () => {
             {form.discountType === 'percentage' && (
               <div>
                 <label className="text-xs font-medium text-muted-foreground">{t('discountValue')} (%)</label>
-                <input type="number" value={form.discountValue} onChange={e => setForm({ ...form, discountValue: Number(e.target.value) })}
+                <input type="text" inputMode="numeric" value={numDisplay(form.discountValue)} onChange={e => setForm({ ...form, discountValue: parseNumInput(e.target.value) })}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             )}

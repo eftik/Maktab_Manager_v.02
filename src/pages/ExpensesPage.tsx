@@ -5,7 +5,7 @@ import type { Expense, ExpenseCategory } from '@/types';
 import { Plus, Search, Edit2, Trash2, X } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN } from '@/lib/helpers';
+import { fmtAFN, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const categories: ExpenseCategory[] = ['salary', 'electricity', 'rent', 'maintenance', 'supplies', 'other'];
@@ -140,10 +140,10 @@ const ExpensesPage = () => {
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             )}
-            {[{k:'amount',l:'amount',tp:'number'},{k:'personName',l:'personName',tp:'text'},{k:'description',l:'description',tp:'text'},{k:'billNumber',l:'billNumber',tp:'text'}].map(f => (
+            {[{k:'amount',l:'amount',num:true},{k:'personName',l:'personName',num:false},{k:'description',l:'description',num:false},{k:'billNumber',l:'billNumber',num:false}].map(f => (
               <div key={f.k}>
                 <label className="text-xs font-medium text-muted-foreground">{t(f.l as any)}</label>
-                <input type={f.tp} value={(form as any)[f.k]} onChange={e => setForm({ ...form, [f.k]: f.tp === 'number' ? Number(e.target.value) : e.target.value })}
+                <input type="text" inputMode={f.num ? "numeric" : "text"} value={f.num ? numDisplay((form as any)[f.k]) : (form as any)[f.k]} onChange={e => setForm({ ...form, [f.k]: f.num ? parseNumInput(e.target.value) : e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             ))}
