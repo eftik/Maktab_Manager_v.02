@@ -32,7 +32,10 @@ const StaffPage = () => {
   const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
-  const filtered = staffList.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = staffList
+    .filter(s => !schoolFilter || s.schoolId === schoolFilter)
+    .filter(s => !roleFilter || s.role === roleFilter)
+    .filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
   const salaryPayments = (staffId: string) => expenses.filter(e => e.staffId === staffId && e.category === 'salary');
   const totalPaid = (staffId: string) => salaryPayments(staffId).reduce((s, e) => s + e.amount, 0);
