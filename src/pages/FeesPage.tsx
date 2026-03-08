@@ -68,7 +68,19 @@ const FeesPage = () => {
     setShowForm(false);
   };
 
+  const handleQuickSave = (studentId: string) => {
+    const s = students.find(st => st.id === studentId);
+    if (!s) return;
+    const final = quickForm.amount - quickForm.discount;
+    addPayment({ studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber });
+    setQuickAdd(null);
+    setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] });
+  };
+
   const handleStudentChange = (studentId: string) => {
+    const s = students.find(st => st.id === studentId);
+    setForm({ ...form, studentId, schoolId: s?.schoolId || form.schoolId });
+  };
     const s = students.find(st => st.id === studentId);
     setForm({ ...form, studentId, schoolId: s?.schoolId || form.schoolId });
   };
