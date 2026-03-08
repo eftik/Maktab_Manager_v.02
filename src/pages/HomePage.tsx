@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { School as SchoolIcon, Users, TrendingUp, TrendingDown, DollarSign, UserCheck, UserX } from 'lucide-react';
+import { School as SchoolIcon, Users, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { fmtAFN } from '@/lib/helpers';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -28,43 +28,78 @@ const HomePage = () => {
   }, [schools, payments, expenses]);
 
   const cards = [
-    { label: t('totalSchools'), value: stats.totalSchools, icon: SchoolIcon, color: 'bg-blue-500' },
-    { label: t('totalStudents'), value: stats.totalStudents, icon: Users, color: 'bg-emerald-500' },
-    { label: t('totalIncome'), value: fmtAFN(stats.totalIncome), icon: TrendingUp, color: 'bg-teal-500' },
-    { label: t('totalExpenses'), value: fmtAFN(stats.totalExp), icon: TrendingDown, color: 'bg-orange-500' },
-    { label: t('netProfit'), value: fmtAFN(stats.netProfit), icon: DollarSign, color: stats.netProfit >= 0 ? 'bg-green-600' : 'bg-red-600' },
+    { label: t('totalSchools'), value: stats.totalSchools, icon: SchoolIcon, accent: 'bg-primary' },
+    { label: t('totalStudents'), value: stats.totalStudents, icon: Users, accent: 'bg-primary' },
+    { label: t('totalIncome'), value: fmtAFN(stats.totalIncome), icon: TrendingUp, accent: 'bg-success' },
+    { label: t('totalExpenses'), value: fmtAFN(stats.totalExp), icon: TrendingDown, accent: 'bg-destructive' },
+    { label: t('netProfit'), value: fmtAFN(stats.netProfit), icon: DollarSign, accent: stats.netProfit >= 0 ? 'bg-success' : 'bg-destructive' },
   ];
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="font-bold text-lg text-foreground">{t('dashboard')}</h2>
+    <div className="p-4 space-y-5">
+      {/* Welcome */}
+      <div>
+        <h2 className="font-bold text-xl text-foreground tracking-tight">{t('dashboard')}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('home')}</p>
+      </div>
 
+      {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3">
         {cards.map((card, i) => (
-          <div key={i} className={`rounded-2xl p-4 shadow-sm bg-card border border-border ${i === cards.length - 1 ? 'col-span-2' : ''}`}>
+          <div
+            key={i}
+            className={cn(
+              "card-press rounded-2xl p-4 card-elevated",
+              i === cards.length - 1 ? 'col-span-2' : ''
+            )}
+          >
             <div className="flex items-center gap-3">
-              <div className={`${card.color} p-2.5 rounded-xl`}><card.icon size={20} className="text-white" /></div>
-              <div>
-                <p className="text-xs text-muted-foreground">{card.label}</p>
-                <p className="text-lg font-bold text-foreground">{card.value}</p>
+              <div className={`${card.accent} p-2.5 rounded-xl shadow-sm`}>
+                <card.icon size={20} className="text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-muted-foreground truncate">{card.label}</p>
+                <p className="text-lg font-bold text-foreground tracking-tight">{card.value}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
 
+      {/* Chart */}
       {chartData.length > 0 && (
-        <div className="bg-card border border-border rounded-2xl p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">{t('income')} vs {t('expenses')}</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={chartData}>
+        <div className="card-elevated rounded-2xl p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-4">
+            {t('income')} vs {t('expenses')}
+          </h3>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={chartData} barCategoryGap="20%">
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-              <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-              <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="income" name={t('income')} fill="hsl(var(--primary))" radius={[4,4,0,0]} />
-              <Bar dataKey="expenses" name={t('expenses')} fill="hsl(0 72% 51%)" radius={[4,4,0,0]} />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                stroke="hsl(var(--border))"
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                stroke="hsl(var(--border))"
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: 14,
+                  fontSize: 12,
+                  boxShadow: '0 8px 30px -12px rgba(0,0,0,0.15)',
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+              <Bar dataKey="income" name={t('income')} fill="hsl(var(--primary))" radius={[6,6,0,0]} />
+              <Bar dataKey="expenses" name={t('expenses')} fill="hsl(var(--destructive))" radius={[6,6,0,0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -72,4 +107,7 @@ const HomePage = () => {
     </div>
   );
 };
+
+// Need cn import
+import { cn } from '@/lib/utils';
 export default HomePage;

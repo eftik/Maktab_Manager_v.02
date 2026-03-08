@@ -28,11 +28,20 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
+    --success: 152 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
     --border: 214 20% 90%;
     --input: 214 20% 90%;
     --ring: 215 80% 48%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
+
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -69,6 +78,12 @@
     --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 100%;
 
+    --success: 152 50% 35%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 80% 45%;
+    --warning-foreground: 0 0% 100%;
+
     --border: 220 18% 20%;
     --input: 220 18% 20%;
     --ring: 215 80% 55%;
@@ -89,8 +104,66 @@
     @apply border-border;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    overscroll-behavior-y: contain;
+    font-feature-settings: "cv11", "ss01";
+    min-height: 100dvh;
+  }
+
+  /* Better touch targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Smooth scrolling containers */
+  .scroll-smooth-touch {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area utilities */
+  .pb-safe {
+    padding-bottom: max(var(--safe-bottom), 0.5rem);
+  }
+  .pt-safe {
+    padding-top: max(var(--safe-top), 0px);
+  }
+}
+
+@layer components {
+  /* Mobile card with subtle press effect */
+  .card-press {
+    @apply transition-all duration-150 active:scale-[0.98] active:opacity-90;
+  }
+
+  /* Glass morphism card */
+  .card-glass {
+    @apply bg-card/80 backdrop-blur-lg border border-border/50 shadow-sm;
+  }
+
+  /* Elevated card */
+  .card-elevated {
+    @apply bg-card border border-border shadow-lg shadow-black/5 dark:shadow-black/20;
   }
 }
