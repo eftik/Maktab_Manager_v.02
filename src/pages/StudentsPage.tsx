@@ -179,13 +179,28 @@ const StudentsPage = () => {
                 {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
-            {[{k:'name',l:'name'},{k:'idNumber',l:'idNumber'},{k:'grade',l:'grade'},{k:'parentName',l:'parentName'},{k:'parentPhone',l:'parentPhone'}].map(f => (
+            {[{k:'name',l:'name'},{k:'idNumber',l:'idNumber'},{k:'parentName',l:'parentName'},{k:'parentPhone',l:'parentPhone'}].map(f => (
               <div key={f.k}>
                 <label className="text-xs font-medium text-muted-foreground">{t(f.l as any)}</label>
                 <input value={(form as any)[f.k]} onChange={e => setForm({ ...form, [f.k]: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             ))}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">{t('grade')}</label>
+              {schoolGrades.length > 0 ? (
+                <select value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground">
+                  <option value="">—</option>
+                  {schoolGrades.map((g, i) => (
+                    <option key={i} value={`${g.grade}-${g.section}`}>{t('gradeLabel' as any)} {g.grade} - {t('sectionLabel' as any)} {g.section}</option>
+                  ))}
+                </select>
+              ) : (
+                <input value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
+              )}
+            </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('discountType')}</label>
               <select value={form.discountType} onChange={e => setForm({ ...form, discountType: e.target.value as any })}
