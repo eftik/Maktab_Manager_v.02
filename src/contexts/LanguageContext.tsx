@@ -124,6 +124,8 @@ const T = {
     currentPasscode:'رمز اصلی فعلی', newPasscode:'رمز اصلی جدید (اختیاری)',
     checkingSetup:'بررسی تنظیمات...', changePassword:'خالی بگذارید تا تغییر نکند',
     editAdmin:'ویرایش مدیر',
+    printSelected:'چاپ انتخاب شده',
+    selectAll:'انتخاب همه',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
