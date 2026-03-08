@@ -136,7 +136,7 @@ const T = {
     grades:'ټولګي', section:'برخه', addGrade:'ټولګی اضافه', manageGrades:'ټولګي اداره',
     gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
     monthlyBreakdown:'میاشتني توضیحات', unpaidFees:'نه ورکړل شوي فیسونه', estimated:'اټکل شوی',
-    monthly:'میاشتني', total:'ټول',
+    monthly:'میاشتني', total:'ټول', importExcel:'اکسل واردول', rows:'ردۍ',
   },
 } as const;
 
