@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { AppShell } from "@/components/AppShell";
 import HomePage from "@/pages/HomePage";
@@ -14,6 +15,8 @@ import ExpensesPage from "@/pages/ExpensesPage";
 import ReportsPage from "@/pages/ReportsPage";
 import StaffPage from "@/pages/StaffPage";
 import SettingsPage from "@/pages/SettingsPage";
+import AdminsPage from "@/pages/AdminsPage";
+import LoginPage from "@/pages/LoginPage";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +29,14 @@ const pages: Record<string, React.FC> = {
   '/reports': ReportsPage,
   '/staff': StaffPage,
   '/settings': SettingsPage,
+  '/admins': AdminsPage,
 };
 
-const App = () => {
+// Pages only accessible by owner
+const ownerOnlyPages = ['/reports', '/admins'];
+
+const AuthenticatedApp = () => {
+  const { user, admin, loading, isOwner } = useAuth();
   const [path, setPath] = useState('/');
 
   useEffect(() => {
@@ -36,19 +44,41 @@ const App = () => {
     if (theme === 'dark') document.documentElement.classList.add('dark');
   }, []);
 
-  const Page = pages[path] || HomePage;
+  if (loading) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
+  if (!user || !admin) {
+    return <LoginPage />;
+  }
+
+  // If admin tries to access owner-only page, redirect to home
+  const effectivePath = (!isOwner && ownerOnlyPages.includes(path)) ? '/' : path;
+  const Page = pages[effectivePath] || HomePage;
+
+  return (
+    <DataProvider>
+      <AppShell currentPath={effectivePath} onNavigate={setPath}>
+        <Page />
+      </AppShell>
+    </DataProvider>
+  );
+};
+
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <LanguageProvider>
-          <DataProvider>
-            <AppShell currentPath={path} onNavigate={setPath}>
-              <Page />
-            </AppShell>
-          </DataProvider>
+          <AuthProvider>
+            <AuthenticatedApp />
+          </AuthProvider>
         </LanguageProvider>
       </TooltipProvider>
     </QueryClientProvider>
