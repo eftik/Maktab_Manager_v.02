@@ -181,8 +181,8 @@ const StaffPage = () => {
 
       {/* Pay salary dialog */}
       {payDialog && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl p-6 w-full max-w-sm space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setPayDialog(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-sm space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-lg text-foreground">{t('paySalary')} — {payDialog.name}</h2>
               <button onClick={() => setPayDialog(null)}><X size={18} className="text-muted-foreground" /></button>
