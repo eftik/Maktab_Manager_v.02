@@ -2,27 +2,29 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import HomePage from "@/pages/HomePage";
-import SchoolsPage from "@/pages/SchoolsPage";
-import StudentsPage from "@/pages/StudentsPage";
-import FeesPage from "@/pages/FeesPage";
-import ExpensesPage from "@/pages/ExpensesPage";
-import ReportsPage from "@/pages/ReportsPage";
-import StaffPage from "@/pages/StaffPage";
-import SettingsPage from "@/pages/SettingsPage";
-import AdminsPage from "@/pages/AdminsPage";
-import LoginPage from "@/pages/LoginPage";
-import SetupPage from "@/pages/SetupPage";
+
+// Lazy load all pages for faster initial bundle
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const SchoolsPage = lazy(() => import("@/pages/SchoolsPage"));
+const StudentsPage = lazy(() => import("@/pages/StudentsPage"));
+const FeesPage = lazy(() => import("@/pages/FeesPage"));
+const ExpensesPage = lazy(() => import("@/pages/ExpensesPage"));
+const ReportsPage = lazy(() => import("@/pages/ReportsPage"));
+const StaffPage = lazy(() => import("@/pages/StaffPage"));
+const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
+const AdminsPage = lazy(() => import("@/pages/AdminsPage"));
+const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const SetupPage = lazy(() => import("@/pages/SetupPage"));
 
 const queryClient = new QueryClient();
 
-const pages: Record<string, React.FC> = {
+const pages: Record<string, React.LazyExoticComponent<React.FC>> = {
   '/': HomePage,
   '/schools': SchoolsPage,
   '/students': StudentsPage,
@@ -36,6 +38,12 @@ const pages: Record<string, React.FC> = {
 
 const ownerOnlyPages = ['/reports', '/admins'];
 
+const PageSpinner = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
 const AuthenticatedApp = () => {
   const { user, admin, loading, isOwner } = useAuth();
   const [path, setPath] = useState('/');
@@ -46,24 +54,18 @@ const AuthenticatedApp = () => {
     if (theme === 'dark') document.documentElement.classList.add('dark');
   }, []);
 
+  // Check owner in parallel with auth (runs once on mount)
   useEffect(() => {
-    // Use the database function directly instead of edge function to avoid cold start delay
-    const checkOwner = async () => {
-      try {
-        const { data, error } = await supabase.rpc('owner_exists');
-        if (error) throw error;
-        setOwnerExists(!!data);
-      } catch {
-        // Fallback to edge function if RPC fails
-        try {
-          const { data } = await supabase.functions.invoke('check-owner-exists');
+    supabase.rpc('owner_exists').then(({ data, error }) => {
+      if (error) {
+        // Fallback to edge function
+        supabase.functions.invoke('check-owner-exists').then(({ data }) => {
           setOwnerExists(data?.exists ?? false);
-        } catch {
-          setOwnerExists(false);
-        }
+        }).catch(() => setOwnerExists(false));
+      } else {
+        setOwnerExists(!!data);
       }
-    };
-    checkOwner();
+    });
   }, []);
 
   if (loading || ownerExists === null) {
@@ -74,13 +76,20 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // No owner yet → show setup
   if (!ownerExists) {
-    return <SetupPage onComplete={() => { setOwnerExists(true); }} />;
+    return (
+      <Suspense fallback={<PageSpinner />}>
+        <SetupPage onComplete={() => setOwnerExists(true)} />
+      </Suspense>
+    );
   }
 
   if (!user || !admin) {
-    return <LoginPage />;
+    return (
+      <Suspense fallback={<PageSpinner />}>
+        <LoginPage />
+      </Suspense>
+    );
   }
 
   const effectivePath = (!isOwner && ownerOnlyPages.includes(path)) ? '/' : path;
@@ -89,7 +98,9 @@ const AuthenticatedApp = () => {
   return (
     <DataProvider>
       <AppShell currentPath={effectivePath} onNavigate={setPath}>
-        <Page />
+        <Suspense fallback={<PageSpinner />}>
+          <Page />
+        </Suspense>
       </AppShell>
     </DataProvider>
   );
