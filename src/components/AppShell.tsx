@@ -135,8 +135,18 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
             </div>
 
             {/* Drawer Footer */}
-            <div className="px-5 py-4 border-t border-border pb-safe">
-              <p className="text-[10px] text-muted-foreground text-center">Maktab Manager v1.0</p>
+            <div className="px-5 py-4 border-t border-border pb-safe space-y-2">
+              <button
+                onClick={() => { signOut(); closeDrawer(); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <LogOut size={18} />
+                <span>{t('logout' as any)}</span>
+              </button>
+              <p className="text-[10px] text-muted-foreground text-center">
+                {admin?.displayName && <span className="block mb-0.5">{admin.displayName}</span>}
+                Maktab Manager v2.0
+              </p>
             </div>
           </nav>
         </>
