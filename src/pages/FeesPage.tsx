@@ -127,9 +127,9 @@ const FeesPage = () => {
                 className="w-full flex items-center justify-between p-4 text-start"
               >
                 <div>
-                  <p className="font-semibold text-sm text-foreground">{student?.name || t('unknown')}</p>
-                  <p className="text-xs text-muted-foreground">{t('idNumber')}: {toWestern(student?.idNumber || '—')} · {toWestern(studentPayments.length)} {t('payments')}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t('total')}: {fmtAFN(totalPaid)}</p>
+                  <p className="font-semibold text-sm text-foreground">{student?.name || '—'}</p>
+                  <p className="text-xs text-muted-foreground">{t('idNumber')}: {toWestern(student?.idNumber || '—')} · {toWestern(String(studentPayments.length))}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
                 </div>
                 {isExpanded ? <ChevronUp size={18} className="text-muted-foreground" /> : <ChevronDown size={18} className="text-muted-foreground" />}
               </button>
