@@ -113,7 +113,19 @@ const StaffPage = () => {
         <button onClick={openAdd} className="bg-primary text-primary-foreground p-2.5 rounded-xl"><Plus size={20} /></button>
       </div>
 
-      {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
+      <div className="flex gap-2">
+        <select value={schoolFilter} onChange={e => setSchoolFilter(e.target.value)}
+          className="flex-1 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground">
+          <option value="">{t('allSchools')}</option>
+          {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
+          className="flex-1 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground">
+          <option value="">{t('role')}</option>
+          {roles.map(r => <option key={r} value={r}>{t(roleKey[r] as any)}</option>)}
+        </select>
+      </div>
+
 
       <div className="space-y-3">
         {filtered.map(s => (
