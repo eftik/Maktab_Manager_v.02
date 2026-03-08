@@ -3,6 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { Student } from '@/types';
 import { Plus, Search, Edit2, Archive, X, User, Phone, GraduationCap, ArrowLeft } from 'lucide-react';
+import ShamsiDatePicker from '@/components/ShamsiDatePicker';
+import { formatShamsi } from '@/lib/shamsi';
 
 const StudentsPage = () => {
   const { t } = useLanguage();
