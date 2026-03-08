@@ -2,10 +2,10 @@ import { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Payment, FeeType } from '@/types';
-import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN, printHTML } from '@/lib/helpers';
+import { fmtAFN, printHTML, toWestern } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
@@ -26,6 +26,7 @@ const FeesPage = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Payment | null>(null);
   const [form, setForm] = useState(emptyForm());
+  const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
 
   const activeStudents = students.filter(s => s.status === 'active');
 
@@ -39,6 +40,15 @@ const FeesPage = () => {
     return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [payments, schoolFilter, search, students]);
 
+  const grouped = useMemo(() => {
+    const map = new Map<string, Payment[]>();
+    filtered.forEach(p => {
+      const list = map.get(p.studentId) || [];
+      list.push(p);
+      map.set(p.studentId, list);
+    });
+    return Array.from(map.entries());
+  }, [filtered]);
   const openAdd = () => { setForm(emptyForm()); setEditing(null); setShowForm(true); };
   const openEdit = (p: Payment) => {
     setForm({ studentId: p.studentId, schoolId: p.schoolId, feeType: p.feeType,
@@ -103,27 +113,48 @@ const FeesPage = () => {
         {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
       </select>
 
-      {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
+      {grouped.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
 
-      <div className="space-y-2">
-        {filtered.map(p => (
-          <div key={p.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-sm text-foreground">{studentName(p.studentId)}</p>
-                <p className="text-xs text-muted-foreground">{schoolName(p.schoolId)} · {t(p.feeType)}</p>
-                <p className="text-xs text-muted-foreground mt-1">{fmtAFN(p.finalAmount)} · {formatShamsi(p.date, lang)}</p>
-                {p.billNumber && <p className="text-xs text-muted-foreground">#{p.billNumber}</p>}
-              </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => showReceipt(p)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><FileText size={16} /></button>
-                <button onClick={() => sendWhatsApp(p)} className="p-2 rounded-lg hover:bg-muted text-green-600"><MessageCircle size={16} /></button>
-                <button onClick={() => openEdit(p)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
-                <button onClick={() => setDeleteId(p.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
-              </div>
+      <div className="space-y-3">
+        {grouped.map(([studentId, studentPayments]) => {
+          const student = students.find(s => s.id === studentId);
+          const isExpanded = expandedStudent === studentId;
+          const totalPaid = studentPayments.reduce((sum, p) => sum + p.finalAmount, 0);
+          return (
+            <div key={studentId} className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+              <button
+                onClick={() => setExpandedStudent(isExpanded ? null : studentId)}
+                className="w-full flex items-center justify-between p-4 text-start"
+              >
+                <div>
+                  <p className="font-semibold text-sm text-foreground">{student?.name || '—'}</p>
+                  <p className="text-xs text-muted-foreground">{t('idNumber')}: {toWestern(student?.idNumber || '—')} · {toWestern(String(studentPayments.length))}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
+                </div>
+                {isExpanded ? <ChevronUp size={18} className="text-muted-foreground" /> : <ChevronDown size={18} className="text-muted-foreground" />}
+              </button>
+
+              {isExpanded && (
+                <div className="border-t border-border divide-y divide-border">
+                  {studentPayments.map(p => (
+                    <div key={p.id} className="px-4 py-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-foreground">{t(p.feeType)} · {fmtAFN(p.finalAmount)}</p>
+                        <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${toWestern(p.billNumber)}` : ''}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => showReceipt(p)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"><FileText size={14} /></button>
+                        <button onClick={() => sendWhatsApp(p)} className="p-1.5 rounded-lg hover:bg-muted text-green-600"><MessageCircle size={14} /></button>
+                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={14} /></button>
+                        <button onClick={() => setDeleteId(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <ConfirmDialog open={!!deleteId} title={t('delete')} message={t('deleteConfirm')}
