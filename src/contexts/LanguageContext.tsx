@@ -150,6 +150,8 @@ const T = {
     quarterly:'ربعي', yearly:'کلنی', custom:'خپل', period:'دوره',
     fromDate:'له', toDate:'تر', allTime:'ټول', q1:'ربع ۱ (وری-غبرګولی)',
     q2:'ربع ۲ (چنګاښ-وږی)', q3:'ربع ۳ (تله-لیندۍ)', q4:'ربع ۴ (مرغومی-کب)',
+    login:'ننوتل', email:'بریښنالیک', password:'پټنوم', logout:'وتل',
+    admins:'مدیران', addAdmin:'مدیر اضافه کول', owner:'مالک', noAccess:'لاسرسی نشته',
   },
 } as const;
 
