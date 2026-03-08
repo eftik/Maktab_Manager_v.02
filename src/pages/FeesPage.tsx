@@ -214,11 +214,30 @@ const FeesPage = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('student')}</label>
-              <select value={form.studentId} onChange={e => handleStudentChange(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground">
-                <option value="">—</option>
-                {activeStudents.map(s => <option key={s.id} value={s.id}>{s.name} ({schoolName(s.schoolId)})</option>)}
-              </select>
+              <Popover open={studentPopoverOpen} onOpenChange={setStudentPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <button className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground">
+                    {form.studentId ? `${studentName(form.studentId)} (${schoolName(form.schoolId)})` : '—'}
+                    <ChevronsUpDown size={14} className="text-muted-foreground" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder={t('search')} />
+                    <CommandList>
+                      <CommandEmpty>{t('noData')}</CommandEmpty>
+                      <CommandGroup>
+                        {activeStudents.map(s => (
+                          <CommandItem key={s.id} value={`${s.name} ${schoolName(s.schoolId)}`} onSelect={() => { handleStudentChange(s.id); setStudentPopoverOpen(false); }}>
+                            <Check size={14} className={`mr-2 ${form.studentId === s.id ? 'opacity-100' : 'opacity-0'}`} />
+                            {s.name} <span className="text-muted-foreground ml-1">({schoolName(s.schoolId)})</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('feeType')}</label>
