@@ -143,6 +143,9 @@ const T = {
     gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
     monthlyBreakdown:'میاشتني توضیحات', unpaidFees:'نه ورکړل شوي فیسونه', estimated:'اټکل شوی',
     monthly:'میاشتني', total:'ټول', importExcel:'اکسل واردول', rows:'ردۍ',
+    quarterly:'ربعي', yearly:'کلنی', custom:'خپل', period:'دوره',
+    fromDate:'له', toDate:'تر', allTime:'ټول', q1:'ربع ۱ (وری-غبرګولی)',
+    q2:'ربع ۲ (چنګاښ-وږی)', q3:'ربع ۳ (تله-لیندۍ)', q4:'ربع ۴ (مرغومی-کب)',
   },
 } as const;
 
