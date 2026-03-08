@@ -110,7 +110,7 @@ const FeesPage = () => {
               <div className="flex justify-between border-b border-border pb-2"><span className="text-muted-foreground">{t('school')}</span><span className="font-medium text-foreground">{receipt.schoolName}</span></div>
               <div className="flex justify-between border-b border-border pb-2"><span className="text-muted-foreground">{t('month')}</span><span className="font-medium text-foreground">{receipt.month}</span></div>
               <div className="flex justify-between border-b border-border pb-2"><span className="text-muted-foreground">{t('amount')}</span><span className="font-medium text-foreground">؋{receipt.amount?.toLocaleString()}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">{t('paymentDate')}</span><span className="font-medium text-foreground">{receipt.datePaid}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">{t('paymentDate')}</span><span className="font-medium text-foreground">{receipt.datePaid ? formatShamsi(receipt.datePaid, lang) : ''}</span></div>
             </div>
             <div className="flex gap-2">
               <button onClick={printReceipt} className="flex-1 bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
