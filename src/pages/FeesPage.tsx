@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { formatShamsi } from '@/lib/shamsi';
 import { useData } from '@/contexts/DataContext';
 import { CheckCircle, MessageCircle, FileText, Filter } from 'lucide-react';
 
