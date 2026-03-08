@@ -1,6 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect } from 'react';
 import { Globe, Moon, Sun } from 'lucide-react';
+import type { Language } from '@/types';
 
 const SettingsPage = () => {
   const { t, lang, setLang } = useLanguage();
@@ -10,6 +11,12 @@ const SettingsPage = () => {
     document.documentElement.classList.toggle('dark', dark);
     localStorage.setItem('theme', dark ? 'dark' : 'light');
   }, [dark]);
+
+  const langs: { code: Language; label: string }[] = [
+    { code: 'en', label: 'English' },
+    { code: 'da', label: 'دری' },
+    { code: 'ps', label: 'پښتو' },
+  ];
 
   return (
     <div className="p-4 space-y-4">
@@ -22,14 +29,12 @@ const SettingsPage = () => {
             <span className="text-sm font-medium text-foreground">{t('language')}</span>
           </div>
           <div className="flex gap-1">
-            <button onClick={() => setLang('en')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${lang === 'en' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-              English
-            </button>
-            <button onClick={() => setLang('da')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${lang === 'da' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-              دری
-            </button>
+            {langs.map(l => (
+              <button key={l.code} onClick={() => setLang(l.code)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${lang === l.code ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                {l.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -46,11 +51,10 @@ const SettingsPage = () => {
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-4 text-center">
-        <p className="text-xs text-muted-foreground">SchoolManager v1.0</p>
+        <p className="text-xs text-muted-foreground">SchoolManager v2.0</p>
         <p className="text-xs text-muted-foreground mt-1">Made for Afghan Private Schools 🇦🇫</p>
       </div>
     </div>
   );
 };
-
 export default SettingsPage;

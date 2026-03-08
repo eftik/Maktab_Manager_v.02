@@ -1,69 +1,49 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { School, Users, CreditCard, TrendingUp, TrendingDown, DollarSign, UserCheck, UserX } from 'lucide-react';
-
-const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+import { School as SchoolIcon, Users, TrendingUp, TrendingDown, DollarSign, UserCheck, UserX } from 'lucide-react';
+import { fmtAFN } from '@/lib/helpers';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const HomePage = () => {
   const { t } = useLanguage();
   const { schools, students, payments, expenses } = useData();
-  const currentMonth = new Date().getMonth();
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const currentYear = new Date().getFullYear();
-
-  const monthName = months[selectedMonth];
 
   const stats = useMemo(() => {
-    const monthPayments = payments.filter(p => p.month === monthName && p.year === currentYear);
-    const monthExpenses = expenses.filter(e => {
-      const d = new Date(e.date);
-      return d.getMonth() === selectedMonth && d.getFullYear() === currentYear;
-    });
-    const paidCount = monthPayments.filter(p => p.status === 'paid').length;
-    const unpaidCount = monthPayments.filter(p => p.status === 'unpaid').length;
-    const income = monthPayments.filter(p => p.status === 'paid').reduce((s, p) => s + p.amount, 0);
-    const totalExp = monthExpenses.reduce((s, e) => s + e.amount, 0);
-
+    const totalIncome = payments.reduce((s, p) => s + p.finalAmount, 0);
+    const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
     return {
       totalSchools: schools.length,
       totalStudents: students.filter(s => s.status === 'active').length,
-      paidCount, unpaidCount, income, totalExp,
-      netProfit: income - totalExp,
+      totalIncome, totalExp, netProfit: totalIncome - totalExp,
     };
-  }, [schools, students, payments, expenses, selectedMonth, currentYear, monthName]);
+  }, [schools, students, payments, expenses]);
+
+  const chartData = useMemo(() => {
+    return schools.map(sch => {
+      const income = payments.filter(p => p.schoolId === sch.id).reduce((s, p) => s + p.finalAmount, 0);
+      const exp = expenses.filter(e => e.schoolId === sch.id).reduce((s, e) => s + e.amount, 0);
+      return { name: sch.name.substring(0, 12), income, expenses: exp, profit: income - exp };
+    });
+  }, [schools, payments, expenses]);
 
   const cards = [
-    { label: t('totalSchools'), value: stats.totalSchools, icon: School, color: 'bg-blue-500' },
+    { label: t('totalSchools'), value: stats.totalSchools, icon: SchoolIcon, color: 'bg-blue-500' },
     { label: t('totalStudents'), value: stats.totalStudents, icon: Users, color: 'bg-emerald-500' },
-    { label: t('paidStudents'), value: stats.paidCount, icon: UserCheck, color: 'bg-green-500' },
-    { label: t('unpaidStudents'), value: stats.unpaidCount, icon: UserX, color: 'bg-red-500' },
-    { label: t('totalIncome'), value: `؋${stats.income.toLocaleString()}`, icon: TrendingUp, color: 'bg-teal-500' },
-    { label: t('totalExpenses'), value: `؋${stats.totalExp.toLocaleString()}`, icon: TrendingDown, color: 'bg-orange-500' },
-    { label: t('netProfit'), value: `؋${stats.netProfit.toLocaleString()}`, icon: DollarSign, color: stats.netProfit >= 0 ? 'bg-green-600' : 'bg-red-600' },
+    { label: t('totalIncome'), value: fmtAFN(stats.totalIncome), icon: TrendingUp, color: 'bg-teal-500' },
+    { label: t('totalExpenses'), value: fmtAFN(stats.totalExp), icon: TrendingDown, color: 'bg-orange-500' },
+    { label: t('netProfit'), value: fmtAFN(stats.netProfit), icon: DollarSign, color: stats.netProfit >= 0 ? 'bg-green-600' : 'bg-red-600' },
   ];
 
   return (
     <div className="p-4 space-y-4">
-      {/* Month selector */}
-      <select
-        value={selectedMonth}
-        onChange={e => setSelectedMonth(Number(e.target.value))}
-        className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary"
-      >
-        {months.map((m, i) => (
-          <option key={m} value={i}>{t(m as any)}</option>
-        ))}
-      </select>
+      <h2 className="font-bold text-lg text-foreground">{t('dashboard')}</h2>
 
-      {/* Cards Grid */}
       <div className="grid grid-cols-2 gap-3">
         {cards.map((card, i) => (
-          <div key={i} className={`rounded-2xl p-4 shadow-sm ${i === cards.length - 1 ? 'col-span-2' : ''} bg-card border border-border`}>
+          <div key={i} className={`rounded-2xl p-4 shadow-sm bg-card border border-border ${i === cards.length - 1 ? 'col-span-2' : ''}`}>
             <div className="flex items-center gap-3">
-              <div className={`${card.color} p-2.5 rounded-xl`}>
-                <card.icon size={20} className="text-white" />
-              </div>
+              <div className={`${card.color} p-2.5 rounded-xl`}><card.icon size={20} className="text-white" /></div>
               <div>
                 <p className="text-xs text-muted-foreground">{card.label}</p>
                 <p className="text-lg font-bold text-foreground">{card.value}</p>
@@ -72,8 +52,24 @@ const HomePage = () => {
           </div>
         ))}
       </div>
+
+      {chartData.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3">{t('income')} vs {t('expenses')}</h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+              <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+              <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontSize: 12 }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Bar dataKey="income" name={t('income')} fill="hsl(var(--primary))" radius={[4,4,0,0]} />
+              <Bar dataKey="expenses" name={t('expenses')} fill="hsl(0 72% 51%)" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 };
-
 export default HomePage;
