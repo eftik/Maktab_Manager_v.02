@@ -91,7 +91,7 @@ const T = {
     grades:'صنوف', section:'بخش', addGrade:'اضافه کردن صنف', manageGrades:'مدیریت صنوف',
     gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
     monthlyBreakdown:'تفکیک ماهانه', unpaidFees:'فیس‌های پرداخت نشده', estimated:'تخمینی',
-    monthly:'ماهانه', total:'مجموع',
+    monthly:'ماهانه', total:'مجموع', importExcel:'وارد کردن اکسل', rows:'ردیف',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
