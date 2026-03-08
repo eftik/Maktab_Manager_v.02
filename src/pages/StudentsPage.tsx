@@ -86,6 +86,8 @@ const StudentsPage = () => {
     const msg = `سلام ${student.parentName} صاحب،\n\nاحتراماً به اطلاع شما میرسانیم که فیس ${feeList.join('، ')} شاگرد ${student.name} برای ماه‌های ${monthList.join('، ')} پرداخت نشده است.\n\nلطفاً هر چه زودتر اقدام فرمایید.\n\nبا احترام،\n${schoolName(student.schoolId)}`;
     window.open(`https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
+
+  if (viewStudent) {
     const sp = payments.filter(p => p.studentId === viewStudent.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
     return (
