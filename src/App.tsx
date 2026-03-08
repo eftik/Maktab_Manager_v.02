@@ -69,6 +69,17 @@ const AuthenticatedApp = () => {
     });
   }, []);
 
+  // Handle reset-password route
+  const isResetPassword = window.location.pathname === '/reset-password' || window.location.hash.includes('type=recovery');
+
+  if (isResetPassword) {
+    return (
+      <Suspense fallback={<PageSpinner />}>
+        <ResetPasswordPage />
+      </Suspense>
+    );
+  }
+
   if (loading || ownerExists === null) {
     return (
       <div className="min-h-[100dvh] bg-background flex items-center justify-center">
