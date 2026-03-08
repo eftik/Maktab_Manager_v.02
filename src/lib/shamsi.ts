@@ -23,7 +23,8 @@ export const toGregorian = (jy: number, jm: number, jd: number) => {
   return new Date(gy, gm - 1, gd);
 };
 
-export const formatShamsi = (date: Date | string, lang: Language = 'en'): string => {
+export const formatShamsi = (date: Date | string | undefined | null, lang: Language = 'en'): string => {
+  if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
   const { year, month, day } = toShamsi(d);
