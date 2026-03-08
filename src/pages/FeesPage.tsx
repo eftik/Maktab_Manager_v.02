@@ -80,9 +80,10 @@ const FeesPage = () => {
     const s = students.find(st => st.id === studentId);
     if (!s) return;
     const final = quickForm.amount - quickForm.discount;
-    addPayment({ studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber });
+    if (quickForm.feeType === 'other' && !quickForm.customFeeLabel.trim()) return;
+    addPayment({ studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber, customFeeLabel: quickForm.feeType === 'other' ? quickForm.customFeeLabel : undefined });
     setQuickAdd(null);
-    setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] });
+    setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
   };
 
   const handleStudentChange = (studentId: string) => {
