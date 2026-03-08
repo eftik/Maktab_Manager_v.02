@@ -78,7 +78,14 @@ const StudentsPage = () => {
 
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
 
-  if (viewStudent) {
+  const sendWhatsApp = (student: Student, unpaidMonths: { year: number; month: number; feeType: FeeType }[]) => {
+    const phone = student.parentPhone.replace(/[^0-9+]/g, '');
+    if (!phone) return;
+    const monthList = [...new Set(unpaidMonths.map(u => formatShamsiMonth(u.year, u.month, lang)))];
+    const feeList = [...new Set(unpaidMonths.map(u => t(u.feeType)))];
+    const msg = `سلام ${student.parentName} صاحب،\n\nاحتراماً به اطلاع شما میرسانیم که فیس ${feeList.join('، ')} شاگرد ${student.name} برای ماه‌های ${monthList.join('، ')} پرداخت نشده است.\n\nلطفاً هر چه زودتر اقدام فرمایید.\n\nبا احترام،\n${schoolName(student.schoolId)}`;
+    window.open(`https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
     const sp = payments.filter(p => p.studentId === viewStudent.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
     return (
