@@ -168,6 +168,14 @@ const T = {
     q2:'ربع ۲ (چنګاښ-وږی)', q3:'ربع ۳ (تله-لیندۍ)', q4:'ربع ۴ (مرغومی-کب)',
     login:'ننوتل', email:'بریښنالیک', password:'پټنوم', logout:'وتل',
     admins:'مدیران', addAdmin:'مدیر اضافه کول', owner:'مالک', noAccess:'لاسرسی نشته',
+    initialSetup:'لومړنۍ ترتیبات', setupDescription:'د مالک حساب جوړ کړئ ترڅو پیل وکړئ',
+    masterPasscode:'اصلي پټنوم', confirmPasscode:'اصلي پټنوم تایید',
+    passcodeHint:'دا پټنوم خوندي کړئ — د مالکیت لیږد لپاره اړین دی',
+    passcodeMinLength:'پټنوم باید لږترلږه ۶ توري ولري',
+    passcodeMismatch:'پټنومونه سره نه سمون خوري', createOwner:'د مالک حساب جوړول',
+    transferOwnership:'د مالکیت لیږد', newOwner:'نوی مالک',
+    currentPasscode:'اوسنی اصلي پټنوم', newPasscode:'نوی اصلي پټنوم (اختیاري)',
+    checkingSetup:'ترتیبات چک کول...',
   },
 } as const;
 

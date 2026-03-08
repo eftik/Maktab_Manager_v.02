@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
 import HomePage from "@/pages/HomePage";
 import SchoolsPage from "@/pages/SchoolsPage";
 import StudentsPage from "@/pages/StudentsPage";
@@ -17,6 +18,7 @@ import StaffPage from "@/pages/StaffPage";
 import SettingsPage from "@/pages/SettingsPage";
 import AdminsPage from "@/pages/AdminsPage";
 import LoginPage from "@/pages/LoginPage";
+import SetupPage from "@/pages/SetupPage";
 
 const queryClient = new QueryClient();
 
@@ -32,19 +34,33 @@ const pages: Record<string, React.FC> = {
   '/admins': AdminsPage,
 };
 
-// Pages only accessible by owner
 const ownerOnlyPages = ['/reports', '/admins'];
 
 const AuthenticatedApp = () => {
   const { user, admin, loading, isOwner } = useAuth();
   const [path, setPath] = useState('/');
+  const [ownerExists, setOwnerExists] = useState<boolean | null>(null);
 
   useEffect(() => {
     const theme = localStorage.getItem('theme');
     if (theme === 'dark') document.documentElement.classList.add('dark');
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    checkOwnerExists();
+  }, []);
+
+  const checkOwnerExists = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-owner-exists');
+      if (error) throw error;
+      setOwnerExists(data?.exists ?? false);
+    } catch {
+      setOwnerExists(false);
+    }
+  };
+
+  if (loading || ownerExists === null) {
     return (
       <div className="min-h-[100dvh] bg-background flex items-center justify-center">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -52,11 +68,15 @@ const AuthenticatedApp = () => {
     );
   }
 
+  // No owner yet → show setup
+  if (!ownerExists) {
+    return <SetupPage onComplete={() => { setOwnerExists(true); }} />;
+  }
+
   if (!user || !admin) {
     return <LoginPage />;
   }
 
-  // If admin tries to access owner-only page, redirect to home
   const effectivePath = (!isOwner && ownerOnlyPages.includes(path)) ? '/' : path;
   const Page = pages[effectivePath] || HomePage;
 
