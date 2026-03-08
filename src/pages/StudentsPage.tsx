@@ -123,7 +123,7 @@ const StudentsPage = () => {
         <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
           className="flex-1 min-w-[100px] rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground">
           <option value="">{t('allClasses')}</option>
-          {grades.map(g => <option key={g} value={g}>{g}</option>)}
+          {allGrades.map(g => <option key={g} value={g}>{g}</option>)}
         </select>
         <button onClick={() => setShowArchived(!showArchived)}
           className={`px-3 py-2 rounded-xl text-xs font-medium border ${showArchived ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground'}`}>
