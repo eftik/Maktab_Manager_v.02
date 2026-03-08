@@ -1,50 +1,69 @@
 export interface School {
   id: string;
   name: string;
-  city: string;
-  phone: string;
   address: string;
+  phone: string;
 }
+
+export type DiscountType = 'none' | 'percentage' | 'free';
 
 export interface Student {
   id: string;
   name: string;
-  fatherName: string;
+  idNumber: string;
   grade: string;
-  phone: string;
-  monthlyFee: number;
-  enrollmentDate: string;
+  parentName: string;
+  parentPhone: string;
+  discountType: DiscountType;
+  discountValue: number;
+  entryDate: string;
   status: 'active' | 'archived';
   schoolId: string;
 }
+
+export type FeeType = 'tuition' | 'transportation' | 'registration';
 
 export interface Payment {
   id: string;
   studentId: string;
   schoolId: string;
-  month: string;
-  year: number;
+  feeType: FeeType;
   amount: number;
-  status: 'paid' | 'unpaid';
-  datePaid?: string;
+  discount: number;
+  finalAmount: number;
+  date: string;
+  note: string;
+  billNumber: string;
 }
+
+export type ExpenseCategory = 'salary' | 'electricity' | 'rent' | 'maintenance' | 'supplies' | 'other';
 
 export interface Expense {
   id: string;
-  type: string;
-  amount: number;
-  date: string;
-  note: string;
   schoolId: string;
+  category: ExpenseCategory;
+  amount: number;
+  description: string;
+  personName: string;
+  date: string;
+  billNumber: string;
+  staffId?: string;
 }
+
+export type StaffRole = 'teacher' | 'guard' | 'admin_staff' | 'cleaner' | 'driver' | 'other';
 
 export interface Staff {
   id: string;
   name: string;
-  role: string;
+  role: StaffRole;
+  customRole?: string;
   phone: string;
+  idNumber: string;
   salary: number;
+  entryDate: string;
+  exitDate?: string;
+  active: boolean;
   schoolId: string;
 }
 
-export type Language = 'en' | 'da';
+export type Language = 'en' | 'da' | 'ps';

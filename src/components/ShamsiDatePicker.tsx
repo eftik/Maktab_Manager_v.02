@@ -5,6 +5,7 @@ import {
   toShamsi, toGregorian, formatShamsi, getShamsiMonthDays,
   getShamsiFirstDayOfWeek, shamsiMonths, weekDays
 } from '@/lib/shamsi';
+import type { Language } from '@/types';
 import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
 import {
   Popover, PopoverContent, PopoverTrigger
@@ -65,7 +66,7 @@ const ShamsiDatePicker = ({ value, onChange, placeholder, className }: ShamsiDat
           )}
         >
           <CalendarIcon size={16} className="text-muted-foreground shrink-0" />
-          <span className="flex-1">{displayValue || placeholder || (lang === 'da' ? 'تاریخ انتخاب کنید' : 'Select date')}</span>
+          <span className="flex-1">{displayValue || placeholder || (lang !== 'en' ? 'تاریخ انتخاب کنید' : 'Select date')}</span>
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
