@@ -43,6 +43,8 @@ const T = {
     more:'More', staffMember:'Staff Member', archivedStudents:'Archived Students',
     activeStudents:'Active Students', income:'Income', profit:'Profit',
     allCategories:'All Categories', customCategory:'Custom Category',
+    grades:'Grades', section:'Section', addGrade:'Add Grade', manageGrades:'Manage Grades',
+    gradeLabel:'Grade', sectionLabel:'Section', noGrades:'No grades defined',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
