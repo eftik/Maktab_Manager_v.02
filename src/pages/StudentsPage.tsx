@@ -28,6 +28,7 @@ const StudentsPage = () => {
   const [viewStudent, setViewStudent] = useState<Student | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm());
+  const [showImport, setShowImport] = useState(false);
 
   const allGrades = [...new Set(students.map(s => s.grade))].filter(Boolean);
   const selectedSchool = schools.find(s => s.id === form.schoolId);
