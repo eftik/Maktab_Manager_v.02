@@ -8,6 +8,7 @@ import { formatShamsi, getShamsiMonthsRange, formatShamsiMonth, toShamsi } from 
 import { fmtAFN } from '@/lib/helpers';
 import type { FeeType } from '@/types';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import ImportDialog from '@/components/ImportDialog';
 
 const emptyForm = () => ({
   name: '', idNumber: '', grade: '', parentName: '', parentPhone: '',
