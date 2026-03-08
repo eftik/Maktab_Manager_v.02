@@ -83,6 +83,7 @@ const T = {
     whatsappReminder:'یادآوری واتساپ', darkMode:'حالت تاریک', language:'زبان',
     more:'بیشتر', staffMember:'کارمند', archivedStudents:'شاگردان آرشیف',
     activeStudents:'شاگردان فعال', income:'عواید', profit:'سود',
+    allCategories:'همه کتگوری‌ها', customCategory:'کتگوری سفارشی',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
