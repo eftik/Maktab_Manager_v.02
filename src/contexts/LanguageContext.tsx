@@ -95,6 +95,9 @@ const T = {
     gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
     monthlyBreakdown:'تفکیک ماهانه', unpaidFees:'فیس‌های پرداخت نشده', estimated:'تخمینی',
     monthly:'ماهانه', total:'مجموع', importExcel:'وارد کردن اکسل', rows:'ردیف',
+    quarterly:'ربع‌وار', yearly:'سالانه', custom:'سفارشی', period:'دوره',
+    fromDate:'از تاریخ', toDate:'تا تاریخ', allTime:'همه',  q1:'ربع ۱ (حمل-جوزا)',
+    q2:'ربع ۲ (سرطان-سنبله)', q3:'ربع ۳ (میزان-قوس)', q4:'ربع ۴ (جدی-حوت)',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
