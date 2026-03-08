@@ -86,10 +86,11 @@ const FeesPage = () => {
     const s = students.find(st => st.id === studentId);
     if (!s) return;
     const final = quickForm.amount - quickForm.discount;
-    if (quickForm.feeType === 'other' && !quickForm.customFeeLabel.trim()) return;
-    addPayment({ studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber, customFeeLabel: quickForm.feeType === 'other' ? quickForm.customFeeLabel : undefined });
+    const tempPayment = { studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber, customFeeLabel: quickForm.feeType === 'other' ? quickForm.customFeeLabel : undefined };
+    addPayment(tempPayment);
     setQuickAdd(null);
     setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
+    setTimeout(() => showReceipt({ ...tempPayment, id: 'temp' } as Payment), 300);
   };
 
   const handleStudentChange = (studentId: string) => {
