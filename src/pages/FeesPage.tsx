@@ -110,16 +110,39 @@ const FeesPage = () => {
 
   const showReceipt = (p: Payment) => {
     const s = students.find(st => st.id === p.studentId);
+    const sch = schools.find(sc => sc.id === p.schoolId);
+    const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     printHTML(t('receipt'), `
-      <h1>🧾 ${t('receipt')}</h1>
-      <div class="row"><span>${t('student')}:</span><span>${s?.name || ''}</span></div>
-      <div class="row"><span>${t('school')}:</span><span>${schoolName(p.schoolId)}</span></div>
-      <div class="row"><span>${t('feeType')}:</span><span>${feeTypeLabel(p.feeType, t, p.customFeeLabel)}</span></div>
-      <div class="row"><span>${t('amount')}:</span><span>${fmtAFN(p.amount)}</span></div>
-      <div class="row"><span>${t('discount')}:</span><span>${fmtAFN(p.discount)}</span></div>
-      <div class="row"><span>${t('finalAmount')}:</span><span>${fmtAFN(p.finalAmount)}</span></div>
-      <div class="row"><span>${t('date')}:</span><span>${formatShamsi(p.date, lang)}</span></div>
-      <div class="row"><span>${t('billNumber')}:</span><span>${p.billNumber}</span></div>
+      <div style="max-width:400px;margin:0 auto;font-family:system-ui,sans-serif;">
+        <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:12px;margin-bottom:16px;">
+          <h1 style="font-size:22px;margin:0 0 4px;">🧾 ${t('receipt')}</h1>
+          <p style="margin:0;font-size:13px;color:#666;">${sch?.name || ''}</p>
+          ${sch?.phone ? `<p style="margin:2px 0 0;font-size:12px;color:#888;">${sch.phone}</p>` : ''}
+        </div>
+        <div style="margin-bottom:12px;">
+          <div class="row"><strong>${t('student')}:</strong><span>${s?.name || ''}</span></div>
+          <div class="row"><span>${t('grade')}:</span><span>${s?.grade || '—'}</span></div>
+          <div class="row"><span>${t('idNumber')}:</span><span>${s?.idNumber || '—'}</span></div>
+          <div class="row"><span>${t('parentName')}:</span><span>${s?.parentName || '—'}</span></div>
+        </div>
+        <div style="border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:8px 0;margin-bottom:12px;">
+          <div class="row"><span>${t('feeType')}:</span><span>${feeTypeLabel(p.feeType, t, p.customFeeLabel)}</span></div>
+          <div class="row"><span>${t('amount')}:</span><span>${fmtAFN(p.amount)}</span></div>
+          ${p.discount > 0 ? `<div class="row"><span>${t('discount')}:</span><span style="color:#e53e3e;">- ${fmtAFN(p.discount)}</span></div>` : ''}
+          <div class="row" style="font-weight:bold;font-size:15px;border-top:1px solid #ddd;margin-top:6px;padding-top:8px;">
+            <span>${t('finalAmount')}:</span><span>${fmtAFN(p.finalAmount)}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#666;">
+          <div class="row"><span>${t('date')}:</span><span>${formatShamsi(p.date, lang)}</span></div>
+          ${p.billNumber ? `<div class="row"><span>${t('billNumber')}:</span><span>#${p.billNumber}</span></div>` : ''}
+          ${p.note ? `<div class="row"><span>${t('note')}:</span><span>${p.note}</span></div>` : ''}
+          <div class="row"><span>Time:</span><span>${now}</span></div>
+        </div>
+        <div style="text-align:center;margin-top:20px;padding-top:12px;border-top:1px dashed #ccc;font-size:11px;color:#aaa;">
+          <p style="margin:0;">Thank you / تشکر از پرداخت شما</p>
+        </div>
+      </div>
     `);
   };
 
