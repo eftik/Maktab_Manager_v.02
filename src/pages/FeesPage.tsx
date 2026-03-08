@@ -107,7 +107,7 @@ const FeesPage = () => {
       <h1>🧾 ${t('receipt')}</h1>
       <div class="row"><span>${t('student')}:</span><span>${s?.name || ''}</span></div>
       <div class="row"><span>${t('school')}:</span><span>${schoolName(p.schoolId)}</span></div>
-      <div class="row"><span>${t('feeType')}:</span><span>${t(p.feeType)}</span></div>
+      <div class="row"><span>${t('feeType')}:</span><span>${feeTypeLabel(p.feeType, t, p.customFeeLabel)}</span></div>
       <div class="row"><span>${t('amount')}:</span><span>${fmtAFN(p.amount)}</span></div>
       <div class="row"><span>${t('discount')}:</span><span>${fmtAFN(p.discount)}</span></div>
       <div class="row"><span>${t('finalAmount')}:</span><span>${fmtAFN(p.finalAmount)}</span></div>
