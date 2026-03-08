@@ -189,7 +189,7 @@ const StaffPage = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('amount')}</label>
-              <input type="number" value={payAmount} onChange={e => setPayAmount(Number(e.target.value))}
+              <input type="text" inputMode="numeric" value={numDisplay(payAmount)} onChange={e => setPayAmount(parseNumInput(e.target.value))}
                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
             </div>
             <div>
