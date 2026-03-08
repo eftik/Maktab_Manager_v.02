@@ -36,6 +36,7 @@ const ExpensesPage = () => {
   }, [expenses, schoolFilter, search]);
 
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
+  const getStaff = (id?: string) => id ? staffList.find(s => s.id === id) : undefined;
 
   const openAdd = () => { setForm({ ...emptyForm(), schoolId: schools[0]?.id || '' }); setEditing(null); setShowForm(true); };
   const openEdit = (e: Expense) => {
