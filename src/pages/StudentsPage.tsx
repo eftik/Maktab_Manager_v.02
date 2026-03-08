@@ -123,25 +123,30 @@ const StudentsPage = () => {
       {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
 
       <div className="space-y-3">
-        {filtered.map(student => (
-          <div key={student.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <h3 className="font-semibold text-foreground">{student.name}</h3>
-                <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
-                <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
-              </div>
-              <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
-                <button onClick={() => updateStudent({ ...student, status: student.status === 'active' ? 'archived' : 'active' })}
-                  className="p-2 rounded-lg hover:bg-muted text-muted-foreground">
-                  {student.status === 'active' ? <Archive size={16} /> : <RotateCcw size={16} />}
-                </button>
-                <button onClick={() => setDeleteId(student.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
+        {filtered.map(student => {
+          const sp = payments.filter(p => p.studentId === student.id);
+          const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
+          return (
+            <div key={student.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-foreground">{student.name}</h3>
+                  <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
+                  <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
+                  <p className="text-xs font-medium text-primary">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
+                </div>
+                <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
+                  <button onClick={() => updateStudent({ ...student, status: student.status === 'active' ? 'archived' : 'active' })}
+                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground">
+                    {student.status === 'active' ? <Archive size={16} /> : <RotateCcw size={16} />}
+                  </button>
+                  <button onClick={() => setDeleteId(student.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <ConfirmDialog open={!!deleteId} title={t('delete')} message={t('deleteConfirm')}
