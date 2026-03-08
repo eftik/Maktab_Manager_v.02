@@ -24,8 +24,11 @@ interface AppShellProps {
 
 export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) => {
   const { t, dir } = useLanguage();
+  const { isOwner, signOut, admin } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerAnimating, setDrawerAnimating] = useState(false);
+
+  const navItems = allNavItems.filter(i => !('ownerOnly' in i && i.ownerOnly) || isOwner);
 
   const bottomNav = navItems.slice(0, 5);
   const moreNav = navItems.slice(5);
