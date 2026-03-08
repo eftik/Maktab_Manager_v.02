@@ -72,7 +72,13 @@ const FeesPage = () => {
     const { customFeeLabel, ...rest } = form;
     const data = { ...rest, finalAmount: final > 0 ? final : 0, customFeeLabel: form.feeType === 'other' ? customFeeLabel : undefined };
     if (editing) updatePayment({ ...editing, ...data });
-    else { addPayment(data); setReceipt({ ...data, id: 'temp' } as Payment); }
+    else {
+      addPayment(data);
+      const tempPayment = { ...data, id: 'temp' } as Payment;
+      setShowForm(false);
+      setTimeout(() => showReceipt(tempPayment), 300);
+      return;
+    }
     setShowForm(false);
   };
 
