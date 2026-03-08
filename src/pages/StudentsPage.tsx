@@ -160,6 +160,8 @@ const StudentsPage = () => {
         {filtered.map(student => {
           const sp = payments.filter(p => p.studentId === student.id);
           const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
+          const unpaid = getUnpaidMonths(student);
+          const unpaidMonthCount = new Set(unpaid.map(u => `${u.year}-${u.month}`)).size;
           return (
             <div key={student.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
               <div className="flex items-start justify-between">
@@ -168,6 +170,11 @@ const StudentsPage = () => {
                   <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
                   <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
                   <p className="text-xs font-medium text-primary">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
+                  {unpaidMonthCount > 0 && (
+                    <p className="text-xs font-medium text-destructive flex items-center gap-1">
+                      <AlertCircle size={12} /> {unpaidMonthCount} {t('unpaid')} {lang === 'en' ? 'month(s)' : lang === 'da' ? 'ماه' : 'میاشت'}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                   <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
