@@ -187,6 +187,7 @@ const StudentsPage = () => {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('search')}
             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground" />
         </div>
+        <button onClick={() => setShowImport(true)} className="bg-secondary text-secondary-foreground p-2.5 rounded-xl"><Upload size={20} /></button>
         <button onClick={openAdd} className="bg-primary text-primary-foreground p-2.5 rounded-xl"><Plus size={20} /></button>
       </div>
 
