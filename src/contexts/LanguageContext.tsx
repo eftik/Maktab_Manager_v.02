@@ -118,7 +118,8 @@ const T = {
     passcodeMismatch:'رمزها مطابقت ندارند', createOwner:'ایجاد حساب مالک',
     transferOwnership:'انتقال مالکیت', newOwner:'مالک جدید',
     currentPasscode:'رمز اصلی فعلی', newPasscode:'رمز اصلی جدید (اختیاری)',
-    checkingSetup:'بررسی تنظیمات...',
+    checkingSetup:'بررسی تنظیمات...', changePassword:'خالی بگذارید تا تغییر نکند',
+    editAdmin:'ویرایش مدیر',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
