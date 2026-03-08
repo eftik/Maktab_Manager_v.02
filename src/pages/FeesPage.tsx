@@ -150,6 +150,36 @@ const FeesPage = () => {
 
               {isExpanded && (
                 <div className="border-t border-border divide-y divide-border">
+                  {/* Quick Add Inline Form */}
+                  {quickAdd === studentId ? (
+                    <div className="px-4 py-3 space-y-2 bg-muted/50">
+                      <div className="flex gap-2">
+                        <select value={quickForm.feeType} onChange={e => setQuickForm({ ...quickForm, feeType: e.target.value as FeeType })}
+                          className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground">
+                          {feeTypes.map(ft => <option key={ft} value={ft}>{t(ft)}</option>)}
+                        </select>
+                        <input type="number" placeholder={t('amount')} value={quickForm.amount || ''} onChange={e => setQuickForm({ ...quickForm, amount: Number(e.target.value) })}
+                          className="w-24 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                      </div>
+                      <div className="flex gap-2">
+                        <input type="number" placeholder={t('discount')} value={quickForm.discount || ''} onChange={e => setQuickForm({ ...quickForm, discount: Number(e.target.value) })}
+                          className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                        <input type="text" placeholder={t('billNumber')} value={quickForm.billNumber} onChange={e => setQuickForm({ ...quickForm, billNumber: e.target.value })}
+                          className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                      </div>
+                      <ShamsiDatePicker value={quickForm.date} onChange={d => setQuickForm({ ...quickForm, date: d })} />
+                      <div className="flex gap-2">
+                        <button onClick={() => handleQuickSave(studentId)} className="flex-1 bg-primary text-primary-foreground py-2 rounded-xl text-sm font-medium">{t('save')}</button>
+                        <button onClick={() => setQuickAdd(null)} className="px-4 py-2 rounded-xl border border-border text-sm text-muted-foreground">{t('cancel')}</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={() => { setQuickAdd(studentId); setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] }); }}
+                      className="w-full px-4 py-2.5 text-sm font-medium text-primary hover:bg-muted/50 flex items-center justify-center gap-1">
+                      <Plus size={14} /> {t('addFee')}
+                    </button>
+                  )}
+
                   {studentPayments.map(p => (
                     <div key={p.id} className="px-4 py-3 flex items-center justify-between">
                       <div>
