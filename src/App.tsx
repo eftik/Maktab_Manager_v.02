@@ -21,6 +21,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const AdminsPage = lazy(() => import("@/pages/AdminsPage"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const SetupPage = lazy(() => import("@/pages/SetupPage"));
+const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,17 @@ const AuthenticatedApp = () => {
       }
     });
   }, []);
+
+  // Handle reset-password route
+  const isResetPassword = window.location.pathname === '/reset-password' || window.location.hash.includes('type=recovery');
+
+  if (isResetPassword) {
+    return (
+      <Suspense fallback={<PageSpinner />}>
+        <ResetPasswordPage />
+      </Suspense>
+    );
+  }
 
   if (loading || ownerExists === null) {
     return (
