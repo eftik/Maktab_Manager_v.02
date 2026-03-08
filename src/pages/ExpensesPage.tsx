@@ -10,6 +10,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 
 const categories: ExpenseCategory[] = ['salary', 'electricity', 'rent', 'maintenance', 'supplies', 'other'];
 const catKey: Record<ExpenseCategory, string> = { salary:'salaryExp', electricity:'electricity', rent:'rent', maintenance:'maintenance', supplies:'supplies', other:'other' };
+const roleKey: Record<string, string> = { teacher:'teacher', guard:'guard', admin_staff:'adminStaff', cleaner:'cleaner', driver:'driver', other:'other' };
 
 const emptyForm = () => ({
   schoolId: '', category: 'salary' as ExpenseCategory, amount: 0,
