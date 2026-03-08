@@ -2,10 +2,10 @@ import { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Payment, FeeType } from '@/types';
-import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi } from '@/lib/shamsi';
-import { fmtAFN, printHTML } from '@/lib/helpers';
+import { fmtAFN, printHTML, toWestern } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
