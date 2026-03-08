@@ -23,6 +23,7 @@ const StaffPage = () => {
   const [schoolFilter, setSchoolFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<StaffT | null>(null);
   const [viewStaff, setViewStaff] = useState<StaffT | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm());
