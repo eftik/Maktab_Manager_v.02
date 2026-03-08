@@ -31,6 +31,29 @@ const StudentsPage = () => {
   const allGrades = [...new Set(students.map(s => s.grade))].filter(Boolean);
   const selectedSchool = schools.find(s => s.id === form.schoolId);
   const schoolGrades = selectedSchool?.grades || [];
+
+  const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
+
+  const getUnpaidMonths = (student: Student) => {
+    const allMonths = getShamsiMonthsRange(student.entryDate);
+    const studentPayments = payments.filter(p => p.studentId === student.id);
+    const paidKeys = new Set(
+      studentPayments.map(p => {
+        const s = toShamsi(new Date(p.date));
+        return `${s.year}-${s.month}-${p.feeType}`;
+      })
+    );
+    const unpaid: { year: number; month: number; feeType: FeeType }[] = [];
+    for (const m of allMonths) {
+      for (const ft of feeTypes) {
+        if (!paidKeys.has(`${m.year}-${m.month}-${ft}`)) {
+          unpaid.push({ ...m, feeType: ft });
+        }
+      }
+    }
+    return unpaid;
+  };
+  const schoolGrades = selectedSchool?.grades || [];
   const filtered = students
     .filter(s => showArchived ? s.status === 'archived' : s.status === 'active')
     .filter(s => !schoolFilter || s.schoolId === schoolFilter)
