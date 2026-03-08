@@ -99,7 +99,7 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
                   <span className="text-lg">🏫</span>
                 </div>
                 <div>
-                  <h2 className="font-bold text-foreground text-sm">SchoolManager</h2>
+                  <h2 className="font-bold text-foreground text-sm">Maktab Manager</h2>
                   <p className="text-xs text-muted-foreground">{t('dashboard')}</p>
                 </div>
               </div>
