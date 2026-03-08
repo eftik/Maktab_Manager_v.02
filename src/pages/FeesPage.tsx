@@ -29,7 +29,7 @@ const FeesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Payment | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [receipt, setReceipt] = useState<Payment | null>(null);
+  const [_receipt, _setReceipt] = useState<Payment | null>(null);
   const [form, setForm] = useState(emptyForm());
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<string | null>(null);
