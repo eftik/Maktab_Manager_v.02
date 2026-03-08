@@ -86,6 +86,8 @@ const T = {
     more:'بیشتر', staffMember:'کارمند', archivedStudents:'شاگردان آرشیف',
     activeStudents:'شاگردان فعال', income:'عواید', profit:'سود',
     allCategories:'همه کتگوری‌ها', customCategory:'کتگوری سفارشی',
+    grades:'صنوف', section:'بخش', addGrade:'اضافه کردن صنف', manageGrades:'مدیریت صنوف',
+    gradeLabel:'صنف', sectionLabel:'بخش', noGrades:'صنفی تعریف نشده',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
