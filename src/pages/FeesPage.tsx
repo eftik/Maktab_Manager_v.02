@@ -162,7 +162,7 @@ const FeesPage = () => {
                           className="w-24 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
                       </div>
                       <div className="flex gap-2">
-                        <input type="number" placeholder={t('discount')} value={quickForm.discount || ''} onChange={e => setQuickForm({ ...quickForm, discount: Number(e.target.value) })}
+                        <input type="text" inputMode="numeric" placeholder={t('discount')} value={numDisplay(quickForm.discount)} onChange={e => setQuickForm({ ...quickForm, discount: parseNumInput(e.target.value) })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
                         <input type="text" placeholder={t('billNumber')} value={quickForm.billNumber} onChange={e => setQuickForm({ ...quickForm, billNumber: e.target.value })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
