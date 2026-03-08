@@ -50,6 +50,8 @@ const T = {
     quarterly:'Quarterly', yearly:'Yearly', custom:'Custom', period:'Period',
     fromDate:'From', toDate:'To', allTime:'All Time', q1:'Q1 (Hamal-Jawza)',
     q2:'Q2 (Saratan-Sunbula)', q3:'Q3 (Mizan-Qaws)', q4:'Q4 (Jadi-Hoot)',
+    login:'Login', email:'Email', password:'Password', logout:'Logout',
+    admins:'Admins', addAdmin:'Add Admin', owner:'Owner', noAccess:'Access denied',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -98,6 +100,8 @@ const T = {
     quarterly:'ربع‌وار', yearly:'سالانه', custom:'سفارشی', period:'دوره',
     fromDate:'از تاریخ', toDate:'تا تاریخ', allTime:'همه',  q1:'ربع ۱ (حمل-جوزا)',
     q2:'ربع ۲ (سرطان-سنبله)', q3:'ربع ۳ (میزان-قوس)', q4:'ربع ۴ (جدی-حوت)',
+    login:'ورود', email:'ایمیل', password:'رمز عبور', logout:'خروج',
+    admins:'مدیران', addAdmin:'اضافه کردن مدیر', owner:'مالک', noAccess:'دسترسی ندارید',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -146,6 +150,8 @@ const T = {
     quarterly:'ربعي', yearly:'کلنی', custom:'خپل', period:'دوره',
     fromDate:'له', toDate:'تر', allTime:'ټول', q1:'ربع ۱ (وری-غبرګولی)',
     q2:'ربع ۲ (چنګاښ-وږی)', q3:'ربع ۳ (تله-لیندۍ)', q4:'ربع ۴ (مرغومی-کب)',
+    login:'ننوتل', email:'بریښنالیک', password:'پټنوم', logout:'وتل',
+    admins:'مدیران', addAdmin:'مدیر اضافه کول', owner:'مالک', noAccess:'لاسرسی نشته',
   },
 } as const;
 

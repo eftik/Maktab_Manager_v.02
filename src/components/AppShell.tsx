@@ -1,16 +1,18 @@
 import { ReactNode, useState, useEffect, useCallback } from 'react';
-import { Home, School, Users, CreditCard, Receipt, BarChart3, UserCog, Settings, Menu, X, ChevronRight } from 'lucide-react';
+import { Home, School, Users, CreditCard, Receipt, BarChart3, UserCog, Settings, Menu, X, ChevronRight, ShieldCheck, LogOut } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
-const navItems = [
+const allNavItems = [
   { key: 'home', icon: Home, path: '/' },
   { key: 'schools', icon: School, path: '/schools' },
   { key: 'students', icon: Users, path: '/students' },
   { key: 'fees', icon: CreditCard, path: '/fees' },
   { key: 'expenses', icon: Receipt, path: '/expenses' },
-  { key: 'reports', icon: BarChart3, path: '/reports' },
+  { key: 'reports', icon: BarChart3, path: '/reports', ownerOnly: true },
   { key: 'staff', icon: UserCog, path: '/staff' },
+  { key: 'admins', icon: ShieldCheck, path: '/admins', ownerOnly: true },
   { key: 'settings', icon: Settings, path: '/settings' },
 ] as const;
 
@@ -22,8 +24,11 @@ interface AppShellProps {
 
 export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) => {
   const { t, dir } = useLanguage();
+  const { isOwner, signOut, admin } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerAnimating, setDrawerAnimating] = useState(false);
+
+  const navItems = allNavItems.filter(i => !('ownerOnly' in i && i.ownerOnly) || isOwner);
 
   const bottomNav = navItems.slice(0, 5);
   const moreNav = navItems.slice(5);
@@ -130,8 +135,18 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
             </div>
 
             {/* Drawer Footer */}
-            <div className="px-5 py-4 border-t border-border pb-safe">
-              <p className="text-[10px] text-muted-foreground text-center">Maktab Manager v1.0</p>
+            <div className="px-5 py-4 border-t border-border pb-safe space-y-2">
+              <button
+                onClick={() => { signOut(); closeDrawer(); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <LogOut size={18} />
+                <span>{t('logout' as any)}</span>
+              </button>
+              <p className="text-[10px] text-muted-foreground text-center">
+                {admin?.displayName && <span className="block mb-0.5">{admin.displayName}</span>}
+                Maktab Manager v2.0
+              </p>
             </div>
           </nav>
         </>
