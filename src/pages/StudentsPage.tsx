@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Student } from '@/types';
-import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft } from 'lucide-react';
+import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft, AlertCircle } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
-import { formatShamsi } from '@/lib/shamsi';
+import { formatShamsi, getShamsiMonthsRange, formatShamsiMonth, toShamsi } from '@/lib/shamsi';
 import { fmtAFN } from '@/lib/helpers';
+import type { FeeType } from '@/types';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 const emptyForm = () => ({
@@ -30,6 +31,28 @@ const StudentsPage = () => {
   const allGrades = [...new Set(students.map(s => s.grade))].filter(Boolean);
   const selectedSchool = schools.find(s => s.id === form.schoolId);
   const schoolGrades = selectedSchool?.grades || [];
+
+  const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
+
+  const getUnpaidMonths = (student: Student) => {
+    const allMonths = getShamsiMonthsRange(student.entryDate);
+    const studentPayments = payments.filter(p => p.studentId === student.id);
+    const paidKeys = new Set(
+      studentPayments.map(p => {
+        const s = toShamsi(new Date(p.date));
+        return `${s.year}-${s.month}-${p.feeType}`;
+      })
+    );
+    const unpaid: { year: number; month: number; feeType: FeeType }[] = [];
+    for (const m of allMonths) {
+      for (const ft of feeTypes) {
+        if (!paidKeys.has(`${m.year}-${m.month}-${ft}`)) {
+          unpaid.push({ ...m, feeType: ft });
+        }
+      }
+    }
+    return unpaid;
+  };
   const filtered = students
     .filter(s => showArchived ? s.status === 'archived' : s.status === 'active')
     .filter(s => !schoolFilter || s.schoolId === schoolFilter)
@@ -84,6 +107,42 @@ const StudentsPage = () => {
           <span className="text-lg font-bold text-primary">{fmtAFN(totalPaid)}</span>
         </div>
 
+        {/* Unpaid Months Section */}
+        {(() => {
+          const unpaid = getUnpaidMonths(viewStudent);
+          if (unpaid.length === 0) return null;
+          // Group by month
+          const grouped = new Map<string, FeeType[]>();
+          unpaid.forEach(u => {
+            const key = `${u.year}-${u.month}`;
+            const list = grouped.get(key) || [];
+            list.push(u.feeType);
+            grouped.set(key, list);
+          });
+          return (
+            <div className="space-y-2">
+              <h3 className="font-semibold text-destructive flex items-center gap-1.5">
+                <AlertCircle size={16} /> {t('unpaid')} {lang === 'en' ? 'Months' : lang === 'da' ? 'ماه‌ها' : 'میاشتونه'}
+              </h3>
+              <div className="space-y-1.5">
+                {Array.from(grouped.entries()).map(([key, types]) => {
+                  const [y, m] = key.split('-').map(Number);
+                  return (
+                    <div key={key} className="bg-destructive/5 border border-destructive/20 rounded-xl p-3">
+                      <p className="text-sm font-medium text-foreground">{formatShamsiMonth(y, m, lang)}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {types.map(ft => (
+                          <span key={ft} className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">{t(ft)}</span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         <h3 className="font-semibold text-foreground">{t('paymentHistory')}</h3>
         {sp.length === 0 ? <p className="text-muted-foreground text-sm">{t('noData')}</p> : (
           <div className="space-y-2">
@@ -137,6 +196,8 @@ const StudentsPage = () => {
         {filtered.map(student => {
           const sp = payments.filter(p => p.studentId === student.id);
           const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
+          const unpaid = getUnpaidMonths(student);
+          const unpaidMonthCount = new Set(unpaid.map(u => `${u.year}-${u.month}`)).size;
           return (
             <div key={student.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
               <div className="flex items-start justify-between">
@@ -145,6 +206,11 @@ const StudentsPage = () => {
                   <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
                   <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
                   <p className="text-xs font-medium text-primary">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
+                  {unpaidMonthCount > 0 && (
+                    <p className="text-xs font-medium text-destructive flex items-center gap-1">
+                      <AlertCircle size={12} /> {unpaidMonthCount} {t('unpaid')} {lang === 'en' ? 'month(s)' : lang === 'da' ? 'ماه' : 'میاشت'}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                   <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>

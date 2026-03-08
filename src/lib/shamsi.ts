@@ -48,4 +48,24 @@ export const getShamsiFirstDayOfWeek = (jy: number, jm: number): number => {
 
 export const getCurrentShamsiDate = () => toShamsi(new Date());
 
+/** Get all Shamsi months from a start date to now as {year, month} pairs */
+export const getShamsiMonthsRange = (startDate: string | Date): { year: number; month: number }[] => {
+  const d = typeof startDate === 'string' ? new Date(startDate) : startDate;
+  if (isNaN(d.getTime())) return [];
+  const start = toShamsi(d);
+  const now = toShamsi(new Date());
+  const months: { year: number; month: number }[] = [];
+  let y = start.year, m = start.month;
+  while (y < now.year || (y === now.year && m <= now.month)) {
+    months.push({ year: y, month: m });
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+  return months;
+};
+
+export const formatShamsiMonth = (year: number, month: number, lang: Language = 'en'): string => {
+  return `${shamsiMonths[lang][month - 1]} ${year}`;
+};
+
 export { shamsiMonths, weekDays };
