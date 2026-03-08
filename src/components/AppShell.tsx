@@ -1,16 +1,18 @@
 import { ReactNode, useState, useEffect, useCallback } from 'react';
-import { Home, School, Users, CreditCard, Receipt, BarChart3, UserCog, Settings, Menu, X, ChevronRight } from 'lucide-react';
+import { Home, School, Users, CreditCard, Receipt, BarChart3, UserCog, Settings, Menu, X, ChevronRight, ShieldCheck, LogOut } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
-const navItems = [
+const allNavItems = [
   { key: 'home', icon: Home, path: '/' },
   { key: 'schools', icon: School, path: '/schools' },
   { key: 'students', icon: Users, path: '/students' },
   { key: 'fees', icon: CreditCard, path: '/fees' },
   { key: 'expenses', icon: Receipt, path: '/expenses' },
-  { key: 'reports', icon: BarChart3, path: '/reports' },
+  { key: 'reports', icon: BarChart3, path: '/reports', ownerOnly: true },
   { key: 'staff', icon: UserCog, path: '/staff' },
+  { key: 'admins', icon: ShieldCheck, path: '/admins', ownerOnly: true },
   { key: 'settings', icon: Settings, path: '/settings' },
 ] as const;
 
