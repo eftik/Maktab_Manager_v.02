@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { supabase } from '@/integrations/supabase/client';
-import { UserPlus, Trash2, Shield, ShieldCheck, X } from 'lucide-react';
+import { UserPlus, Trash2, Shield, ShieldCheck, X, Eye, EyeOff, Pencil } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface AdminRow {
@@ -12,6 +12,8 @@ interface AdminRow {
   role: 'owner' | 'admin';
   school_id: string | null;
   display_name: string;
+  phone: string;
+  id_number: string;
   created_at: string;
 }
 
@@ -21,10 +23,14 @@ const AdminsPage = () => {
   const { schools } = useData();
   const [admins, setAdmins] = useState<AdminRow[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editAdmin, setEditAdmin] = useState<AdminRow | null>(null);
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newName, setNewName] = useState('');
+  const [newPhone, setNewPhone] = useState('');
+  const [newIdNumber, setNewIdNumber] = useState('');
   const [newSchoolId, setNewSchoolId] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -36,24 +42,71 @@ const AdminsPage = () => {
 
   useEffect(() => { fetchAdmins(); }, []);
 
-  const createAdmin = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setShowForm(false);
+    setEditAdmin(null);
+    setNewEmail(''); setNewPassword(''); setNewName('');
+    setNewPhone(''); setNewIdNumber(''); setNewSchoolId('');
+    setShowPassword(false);
+    setError('');
+  };
+
+  const openEdit = (admin: AdminRow) => {
+    setEditAdmin(admin);
+    setNewName(admin.display_name);
+    setNewPhone(admin.phone || '');
+    setNewIdNumber(admin.id_number || '');
+    setNewSchoolId(admin.school_id || '');
+    setNewPassword('');
+    setShowPassword(false);
+    setError('');
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Use edge function to create user (owner can't sign up others directly from client)
-    const { data: funcData, error: funcError } = await supabase.functions.invoke('create-admin', {
-      body: { email: newEmail.trim(), password: newPassword, displayName: newName.trim(), schoolId: newSchoolId || null },
-    });
+    if (editAdmin) {
+      // Update existing admin
+      const { data: funcData, error: funcError } = await supabase.functions.invoke('update-admin', {
+        body: {
+          adminId: editAdmin.id,
+          displayName: newName.trim(),
+          phone: newPhone.trim(),
+          idNumber: newIdNumber.trim(),
+          schoolId: newSchoolId || null,
+          password: newPassword || undefined,
+        },
+      });
 
-    if (funcError || funcData?.error) {
-      setError(funcData?.error || funcError?.message || 'Failed to create admin');
-      setLoading(false);
-      return;
+      if (funcError || funcData?.error) {
+        setError(funcData?.error || funcError?.message || 'Failed to update admin');
+        setLoading(false);
+        return;
+      }
+    } else {
+      // Create new admin
+      const { data: funcData, error: funcError } = await supabase.functions.invoke('create-admin', {
+        body: {
+          email: newEmail.trim(),
+          password: newPassword,
+          displayName: newName.trim(),
+          phone: newPhone.trim(),
+          idNumber: newIdNumber.trim(),
+          schoolId: newSchoolId || null,
+        },
+      });
+
+      if (funcError || funcData?.error) {
+        setError(funcData?.error || funcError?.message || 'Failed to create admin');
+        setLoading(false);
+        return;
+      }
     }
 
-    setShowForm(false);
-    setNewEmail(''); setNewPassword(''); setNewName(''); setNewSchoolId('');
+    resetForm();
     setLoading(false);
     fetchAdmins();
   };
@@ -86,7 +139,7 @@ const AdminsPage = () => {
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-lg text-foreground">{t('admins' as any)}</h2>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => { resetForm(); setShowForm(true); }}
           className="bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-medium flex items-center gap-1.5"
         >
           <UserPlus size={16} /> {t('addAdmin' as any)}
@@ -107,15 +160,32 @@ const AdminsPage = () => {
                 <p className="text-xs text-muted-foreground">
                   {a.role === 'owner' ? t('owner' as any) : school?.name || t('allSchools')}
                 </p>
+                {(a.phone || a.id_number) && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {a.phone && <span>{t('phone')}: {a.phone}</span>}
+                    {a.phone && a.id_number && <span> · </span>}
+                    {a.id_number && <span>{t('idNumber')}: {a.id_number}</span>}
+                  </p>
+                )}
               </div>
-              {a.role !== 'owner' && (
-                <button
-                  onClick={() => setDeleteId(a.id)}
-                  className="p-2 rounded-xl text-destructive hover:bg-destructive/10 min-h-0 min-w-0"
-                >
-                  <Trash2 size={16} />
-                </button>
-              )}
+              <div className="flex items-center gap-1">
+                {a.role !== 'owner' && (
+                  <>
+                    <button
+                      onClick={() => openEdit(a)}
+                      className="p-2 rounded-xl text-muted-foreground hover:bg-accent min-h-0 min-w-0"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => setDeleteId(a.id)}
+                      className="p-2 rounded-xl text-destructive hover:bg-destructive/10 min-h-0 min-w-0"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           );
         })}
@@ -124,43 +194,78 @@ const AdminsPage = () => {
         )}
       </div>
 
-      {/* Create Admin Form Modal */}
+      {/* Create/Edit Admin Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-xl">
+          <div className="bg-card rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-foreground">{t('addAdmin' as any)}</h3>
-              <button onClick={() => setShowForm(false)} className="p-1 min-h-0 min-w-0"><X size={18} className="text-muted-foreground" /></button>
+              <h3 className="font-bold text-foreground">{editAdmin ? t('edit') : t('addAdmin' as any)}</h3>
+              <button onClick={resetForm} className="p-1 min-h-0 min-w-0"><X size={18} className="text-muted-foreground" /></button>
             </div>
 
             {error && (
               <div className="bg-destructive/10 text-destructive text-sm rounded-xl px-3 py-2 font-medium">{error}</div>
             )}
 
-            <form onSubmit={createAdmin} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">{t('name')}</label>
                 <input value={newName} onChange={e => setNewName(e.target.value)} required
                   className="w-full bg-background border border-border rounded-xl py-2.5 px-3 text-sm text-foreground mt-1 focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
+
+              {!editAdmin && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">{t('email' as any)}</label>
+                  <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} required
+                    className="w-full bg-background border border-border rounded-xl py-2.5 px-3 text-sm text-foreground mt-1 focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+              )}
+
               <div>
-                <label className="text-xs font-medium text-muted-foreground">{t('email' as any)}</label>
-                <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} required
+                <label className="text-xs font-medium text-muted-foreground">
+                  {t('password' as any)} {editAdmin && <span className="text-xs opacity-60">({t('changePassword' as any)})</span>}
+                </label>
+                <div className="relative mt-1">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    required={!editAdmin}
+                    minLength={6}
+                    className="w-full bg-background border border-border rounded-xl py-2.5 px-3 pe-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute end-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">{t('phone')}</label>
+                <input value={newPhone} onChange={e => setNewPhone(e.target.value)}
                   className="w-full bg-background border border-border rounded-xl py-2.5 px-3 text-sm text-foreground mt-1 focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
+
               <div>
-                <label className="text-xs font-medium text-muted-foreground">{t('password' as any)}</label>
-                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={6}
+                <label className="text-xs font-medium text-muted-foreground">{t('idNumber')}</label>
+                <input value={newIdNumber} onChange={e => setNewIdNumber(e.target.value)}
                   className="w-full bg-background border border-border rounded-xl py-2.5 px-3 text-sm text-foreground mt-1 focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
+
               <div>
                 <label className="text-xs font-medium text-muted-foreground">{t('school')}</label>
-                <select value={newSchoolId} onChange={e => setNewSchoolId(e.target.value)} required
+                <select value={newSchoolId} onChange={e => setNewSchoolId(e.target.value)} required={!editAdmin}
                   className="w-full bg-background border border-border rounded-xl py-2.5 px-3 text-sm text-foreground mt-1 focus:outline-none focus:ring-2 focus:ring-ring">
                   <option value="">{t('filterBySchool')}</option>
                   {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
+
               <button type="submit" disabled={loading}
                 className="w-full bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50">
                 {loading ? '...' : t('save')}

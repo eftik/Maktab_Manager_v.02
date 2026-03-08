@@ -177,7 +177,8 @@ const T = {
     passcodeMismatch:'پټنومونه سره نه سمون خوري', createOwner:'د مالک حساب جوړول',
     transferOwnership:'د مالکیت لیږد', newOwner:'نوی مالک',
     currentPasscode:'اوسنی اصلي پټنوم', newPasscode:'نوی اصلي پټنوم (اختیاري)',
-    checkingSetup:'ترتیبات چک کول...',
+    checkingSetup:'ترتیبات چک کول...', changePassword:'خالي پرېږدئ ترڅو بدل نشي',
+    editAdmin:'مدیر سمول',
   },
 } as const;
 
