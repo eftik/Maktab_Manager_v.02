@@ -52,7 +52,8 @@ const StudentsPage = () => {
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
 
   if (viewStudent) {
-    const sp = payments.filter(p => p.studentId === viewStudent.id);
+    const sp = payments.filter(p => p.studentId === viewStudent.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
     return (
       <div className="p-4 space-y-4">
         <button onClick={() => setViewStudent(null)} className="flex items-center gap-2 text-primary text-sm font-medium">
@@ -75,6 +76,12 @@ const StudentsPage = () => {
             <div><span className="text-muted-foreground text-xs">{t('entryDate')}</span><p className="font-medium text-foreground">{formatShamsi(viewStudent.entryDate, lang)}</p></div>
           </div>
         </div>
+
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">{t('totalPaid')}</span>
+          <span className="text-lg font-bold text-primary">{fmtAFN(totalPaid)}</span>
+        </div>
+
         <h3 className="font-semibold text-foreground">{t('paymentHistory')}</h3>
         {sp.length === 0 ? <p className="text-muted-foreground text-sm">{t('noData')}</p> : (
           <div className="space-y-2">
@@ -82,8 +89,10 @@ const StudentsPage = () => {
               <div key={p.id} className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">{t(p.feeType)} — {fmtAFN(p.finalAmount)}</p>
-                  <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)} · #{p.billNumber}</p>
+                  <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${p.billNumber}` : ''}</p>
+                  {p.note && <p className="text-xs text-muted-foreground italic mt-0.5">{p.note}</p>}
                 </div>
+                <span className="text-xs font-medium text-primary">{fmtAFN(p.finalAmount)}</span>
               </div>
             ))}
           </div>
