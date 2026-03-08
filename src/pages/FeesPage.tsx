@@ -67,8 +67,10 @@ const FeesPage = () => {
 
   const handleSave = () => {
     if (!form.studentId || !form.schoolId) return;
+    if (form.feeType === 'other' && !form.customFeeLabel.trim()) return;
     const final = form.amount - form.discount;
-    const data = { ...form, finalAmount: final > 0 ? final : 0 };
+    const { customFeeLabel, ...rest } = form;
+    const data = { ...rest, finalAmount: final > 0 ? final : 0, customFeeLabel: form.feeType === 'other' ? customFeeLabel : undefined };
     if (editing) updatePayment({ ...editing, ...data });
     else { addPayment(data); setReceipt({ ...data, id: 'temp' } as Payment); }
     setShowForm(false);
