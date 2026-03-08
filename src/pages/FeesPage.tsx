@@ -40,6 +40,15 @@ const FeesPage = () => {
     return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [payments, schoolFilter, search, students]);
 
+  const grouped = useMemo(() => {
+    const map = new Map<string, Payment[]>();
+    filtered.forEach(p => {
+      const list = map.get(p.studentId) || [];
+      list.push(p);
+      map.set(p.studentId, list);
+    });
+    return Array.from(map.entries());
+  }, [filtered]);
   const openAdd = () => { setForm(emptyForm()); setEditing(null); setShowForm(true); };
   const openEdit = (p: Payment) => {
     setForm({ studentId: p.studentId, schoolId: p.schoolId, feeType: p.feeType,
