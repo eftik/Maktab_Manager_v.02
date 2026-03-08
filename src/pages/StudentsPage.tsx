@@ -52,7 +52,8 @@ const StudentsPage = () => {
   const schoolName = (id: string) => schools.find(s => s.id === id)?.name || '';
 
   if (viewStudent) {
-    const sp = payments.filter(p => p.studentId === viewStudent.id);
+    const sp = payments.filter(p => p.studentId === viewStudent.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
     return (
       <div className="p-4 space-y-4">
         <button onClick={() => setViewStudent(null)} className="flex items-center gap-2 text-primary text-sm font-medium">
@@ -75,6 +76,12 @@ const StudentsPage = () => {
             <div><span className="text-muted-foreground text-xs">{t('entryDate')}</span><p className="font-medium text-foreground">{formatShamsi(viewStudent.entryDate, lang)}</p></div>
           </div>
         </div>
+
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">{t('totalPaid')}</span>
+          <span className="text-lg font-bold text-primary">{fmtAFN(totalPaid)}</span>
+        </div>
+
         <h3 className="font-semibold text-foreground">{t('paymentHistory')}</h3>
         {sp.length === 0 ? <p className="text-muted-foreground text-sm">{t('noData')}</p> : (
           <div className="space-y-2">
@@ -82,8 +89,10 @@ const StudentsPage = () => {
               <div key={p.id} className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">{t(p.feeType)} — {fmtAFN(p.finalAmount)}</p>
-                  <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)} · #{p.billNumber}</p>
+                  <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${p.billNumber}` : ''}</p>
+                  {p.note && <p className="text-xs text-muted-foreground italic mt-0.5">{p.note}</p>}
                 </div>
+                <span className="text-xs font-medium text-primary">{fmtAFN(p.finalAmount)}</span>
               </div>
             ))}
           </div>
@@ -123,25 +132,30 @@ const StudentsPage = () => {
       {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
 
       <div className="space-y-3">
-        {filtered.map(student => (
-          <div key={student.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <h3 className="font-semibold text-foreground">{student.name}</h3>
-                <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
-                <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
-              </div>
-              <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
-                <button onClick={() => updateStudent({ ...student, status: student.status === 'active' ? 'archived' : 'active' })}
-                  className="p-2 rounded-lg hover:bg-muted text-muted-foreground">
-                  {student.status === 'active' ? <Archive size={16} /> : <RotateCcw size={16} />}
-                </button>
-                <button onClick={() => setDeleteId(student.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
+        {filtered.map(student => {
+          const sp = payments.filter(p => p.studentId === student.id);
+          const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
+          return (
+            <div key={student.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-foreground">{student.name}</h3>
+                  <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
+                  <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
+                  <p className="text-xs font-medium text-primary">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
+                </div>
+                <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
+                  <button onClick={() => updateStudent({ ...student, status: student.status === 'active' ? 'archived' : 'active' })}
+                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground">
+                    {student.status === 'active' ? <Archive size={16} /> : <RotateCcw size={16} />}
+                  </button>
+                  <button onClick={() => setDeleteId(student.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <ConfirmDialog open={!!deleteId} title={t('delete')} message={t('deleteConfirm')}
