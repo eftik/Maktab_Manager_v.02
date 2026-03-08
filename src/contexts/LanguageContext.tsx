@@ -62,6 +62,8 @@ const T = {
     currentPasscode:'Current Master Passcode', newPasscode:'New Master Passcode (optional)',
     checkingSetup:'Checking setup...', changePassword:'leave blank to keep',
     editAdmin:'Edit Admin',
+    printSelected:'Print Selected',
+    selectAll:'Select All',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
