@@ -135,6 +135,8 @@ const T = {
     allCategories:'ټولې کټګورۍ', customCategory:'خپله کټګوري',
     grades:'ټولګي', section:'برخه', addGrade:'ټولګی اضافه', manageGrades:'ټولګي اداره',
     gradeLabel:'ټولګی', sectionLabel:'برخه', noGrades:'ټولګی ندی ټاکل شوی',
+    monthlyBreakdown:'میاشتني توضیحات', unpaidFees:'نه ورکړل شوي فیسونه', estimated:'اټکل شوی',
+    monthly:'میاشتني', total:'ټول',
   },
 } as const;
 

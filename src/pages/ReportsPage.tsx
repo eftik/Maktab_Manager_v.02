@@ -232,15 +232,15 @@ const ReportsPage = () => {
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <div>
                     <p className="text-muted-foreground">{t('income')}</p>
-                    <p className="font-semibold text-green-600">{fmtAFN(m.income)}</p>
+                    <p className="font-semibold text-primary">{fmtAFN(m.income)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">{t('expenses')}</p>
-                    <p className="font-semibold text-red-600">{fmtAFN(m.expenses)}</p>
+                    <p className="font-semibold text-destructive">{fmtAFN(m.expenses)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">{t('profit')}</p>
-                    <p className={`font-semibold ${m.income - m.expenses >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className={`font-semibold ${m.income - m.expenses >= 0 ? 'text-primary' : 'text-destructive'}`}>
                       {fmtAFN(m.income - m.expenses)}
                     </p>
                   </div>
