@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Payment, FeeType } from '@/types';
-import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle, ChevronDown, ChevronUp, ChevronsUpDown, Check } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, FileText, MessageCircle, ChevronDown, ChevronUp, ChevronsUpDown, Check, Printer } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
