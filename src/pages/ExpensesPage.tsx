@@ -35,7 +35,7 @@ const ExpensesPage = () => {
           <div key={e.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm flex items-center justify-between">
             <div>
               <p className="font-medium text-sm text-foreground">{t(e.type as any)}</p>
-              <p className="text-xs text-muted-foreground">{schoolName(e.schoolId)} · {e.date}</p>
+              <p className="text-xs text-muted-foreground">{schoolName(e.schoolId)} · {formatShamsi(e.date, lang)}</p>
               {e.note && <p className="text-xs text-muted-foreground mt-0.5">{e.note}</p>}
             </div>
             <div className="flex items-center gap-2">

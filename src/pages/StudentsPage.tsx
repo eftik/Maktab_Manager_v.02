@@ -156,15 +156,19 @@ const StudentsPage = () => {
             {[
               { key: 'name', label: 'name' }, { key: 'fatherName', label: 'fatherName' },
               { key: 'grade', label: 'grade' }, { key: 'phone', label: 'phone' },
-              { key: 'monthlyFee', label: 'monthlyFee' }, { key: 'enrollmentDate', label: 'enrollmentDate' },
+              { key: 'monthlyFee', label: 'monthlyFee' },
             ].map(f => (
               <div key={f.key}>
                 <label className="text-xs font-medium text-muted-foreground">{t(f.label as any)}</label>
                 <input value={(form as any)[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })}
-                  type={f.key === 'enrollmentDate' ? 'date' : f.key === 'monthlyFee' ? 'number' : 'text'}
+                  type={f.key === 'monthlyFee' ? 'number' : 'text'}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               </div>
             ))}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">{t('enrollmentDate')}</label>
+              <ShamsiDatePicker value={form.enrollmentDate} onChange={d => setForm({ ...form, enrollmentDate: d })} />
+            </div>
             <button onClick={handleSave} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium">{t('save')}</button>
           </div>
         </div>
