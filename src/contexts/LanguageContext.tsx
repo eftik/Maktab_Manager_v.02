@@ -124,6 +124,7 @@ const T = {
     whatsappReminder:'واټساپ یادونه', darkMode:'تیاره حالت', language:'ژبه',
     more:'نور', staffMember:'کارکوونکی', archivedStudents:'آرشیف شوي زدکونکي',
     activeStudents:'فعال زدکونکي', income:'عواید', profit:'ګټه',
+    allCategories:'ټولې کټګورۍ', customCategory:'خپله کټګوري',
   },
 } as const;
 
