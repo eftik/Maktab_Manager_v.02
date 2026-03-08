@@ -10,12 +10,15 @@ import { formatShamsi } from '@/lib/shamsi';
 import { fmtAFN, printHTML, toWestern, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
-const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
+const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration', 'other'];
+
+const feeTypeLabel = (ft: FeeType, t: (k: any) => string, customLabel?: string) =>
+  ft === 'other' ? (customLabel || t('otherFee')) : t(ft);
 
 const emptyForm = () => ({
   studentId: '', schoolId: '', feeType: 'tuition' as FeeType,
   amount: 0, discount: 0, finalAmount: 0, date: new Date().toISOString().split('T')[0],
-  note: '', billNumber: '',
+  note: '', billNumber: '', customFeeLabel: '',
 });
 
 const FeesPage = () => {
@@ -30,7 +33,7 @@ const FeesPage = () => {
   const [form, setForm] = useState(emptyForm());
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<string | null>(null);
-  const [quickForm, setQuickForm] = useState({ feeType: 'tuition' as FeeType, amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] });
+  const [quickForm, setQuickForm] = useState({ feeType: 'tuition' as FeeType, amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
   const [studentPopoverOpen, setStudentPopoverOpen] = useState(false);
 
   const activeStudents = students.filter(s => s.status === 'active');
@@ -58,14 +61,16 @@ const FeesPage = () => {
   const openEdit = (p: Payment) => {
     setForm({ studentId: p.studentId, schoolId: p.schoolId, feeType: p.feeType,
       amount: p.amount, discount: p.discount, finalAmount: p.finalAmount,
-      date: p.date, note: p.note, billNumber: p.billNumber });
+      date: p.date, note: p.note, billNumber: p.billNumber, customFeeLabel: p.customFeeLabel || '' });
     setEditing(p); setShowForm(true);
   };
 
   const handleSave = () => {
     if (!form.studentId || !form.schoolId) return;
+    if (form.feeType === 'other' && !form.customFeeLabel.trim()) return;
     const final = form.amount - form.discount;
-    const data = { ...form, finalAmount: final > 0 ? final : 0 };
+    const { customFeeLabel, ...rest } = form;
+    const data = { ...rest, finalAmount: final > 0 ? final : 0, customFeeLabel: form.feeType === 'other' ? customFeeLabel : undefined };
     if (editing) updatePayment({ ...editing, ...data });
     else { addPayment(data); setReceipt({ ...data, id: 'temp' } as Payment); }
     setShowForm(false);
@@ -75,9 +80,10 @@ const FeesPage = () => {
     const s = students.find(st => st.id === studentId);
     if (!s) return;
     const final = quickForm.amount - quickForm.discount;
-    addPayment({ studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber });
+    if (quickForm.feeType === 'other' && !quickForm.customFeeLabel.trim()) return;
+    addPayment({ studentId, schoolId: s.schoolId, feeType: quickForm.feeType, amount: quickForm.amount, discount: quickForm.discount, finalAmount: final > 0 ? final : 0, date: quickForm.date, note: quickForm.note, billNumber: quickForm.billNumber, customFeeLabel: quickForm.feeType === 'other' ? quickForm.customFeeLabel : undefined });
     setQuickAdd(null);
-    setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] });
+    setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' });
   };
 
   const handleStudentChange = (studentId: string) => {
@@ -101,7 +107,7 @@ const FeesPage = () => {
       <h1>🧾 ${t('receipt')}</h1>
       <div class="row"><span>${t('student')}:</span><span>${s?.name || ''}</span></div>
       <div class="row"><span>${t('school')}:</span><span>${schoolName(p.schoolId)}</span></div>
-      <div class="row"><span>${t('feeType')}:</span><span>${t(p.feeType)}</span></div>
+      <div class="row"><span>${t('feeType')}:</span><span>${feeTypeLabel(p.feeType, t, p.customFeeLabel)}</span></div>
       <div class="row"><span>${t('amount')}:</span><span>${fmtAFN(p.amount)}</span></div>
       <div class="row"><span>${t('discount')}:</span><span>${fmtAFN(p.discount)}</span></div>
       <div class="row"><span>${t('finalAmount')}:</span><span>${fmtAFN(p.finalAmount)}</span></div>
@@ -156,7 +162,7 @@ const FeesPage = () => {
                       <div className="flex gap-2">
                         <select value={quickForm.feeType} onChange={e => setQuickForm({ ...quickForm, feeType: e.target.value as FeeType })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground">
-                          {feeTypes.map(ft => <option key={ft} value={ft}>{t(ft)}</option>)}
+                         {feeTypes.map(ft => <option key={ft} value={ft}>{ft === 'other' ? t('otherFee') : t(ft)}</option>)}
                         </select>
                         <input type="text" inputMode="numeric" placeholder={t('amount')} value={numDisplay(quickForm.amount)} onChange={e => setQuickForm({ ...quickForm, amount: parseNumInput(e.target.value) })}
                           className="w-24 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
@@ -166,15 +172,19 @@ const FeesPage = () => {
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
                         <input type="text" placeholder={t('billNumber')} value={quickForm.billNumber} onChange={e => setQuickForm({ ...quickForm, billNumber: e.target.value })}
                           className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
-                      </div>
-                      <ShamsiDatePicker value={quickForm.date} onChange={d => setQuickForm({ ...quickForm, date: d })} />
+                       </div>
+                       {quickForm.feeType === 'other' && (
+                         <input type="text" placeholder={t('customFeeLabel')} value={quickForm.customFeeLabel} onChange={e => setQuickForm({ ...quickForm, customFeeLabel: e.target.value })}
+                           className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+                       )}
+                       <ShamsiDatePicker value={quickForm.date} onChange={d => setQuickForm({ ...quickForm, date: d })} />
                       <div className="flex gap-2">
                         <button onClick={() => handleQuickSave(studentId)} className="flex-1 bg-primary text-primary-foreground py-2 rounded-xl text-sm font-medium">{t('save')}</button>
                         <button onClick={() => setQuickAdd(null)} className="px-4 py-2 rounded-xl border border-border text-sm text-muted-foreground">{t('cancel')}</button>
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => { setQuickAdd(studentId); setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] }); }}
+                    <button onClick={() => { setQuickAdd(studentId); setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' }); }}
                       className="w-full px-4 py-2.5 text-sm font-medium text-primary hover:bg-muted/50 flex items-center justify-center gap-1">
                       <Plus size={14} /> {t('addFee')}
                     </button>
@@ -183,7 +193,7 @@ const FeesPage = () => {
                   {studentPayments.map(p => (
                     <div key={p.id} className="px-4 py-3 flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-foreground">{t(p.feeType)} · {fmtAFN(p.finalAmount)}</p>
+                        <p className="text-xs text-foreground">{feeTypeLabel(p.feeType, t, p.customFeeLabel)} · {fmtAFN(p.finalAmount)}</p>
                         <p className="text-xs text-muted-foreground">{formatShamsi(p.date, lang)}{p.billNumber ? ` · #${toWestern(p.billNumber)}` : ''}</p>
                       </div>
                       <div className="flex items-center gap-1">
@@ -243,9 +253,17 @@ const FeesPage = () => {
               <label className="text-xs font-medium text-muted-foreground">{t('feeType')}</label>
               <select value={form.feeType} onChange={e => setForm({ ...form, feeType: e.target.value as FeeType })}
                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground">
-                {feeTypes.map(ft => <option key={ft} value={ft}>{t(ft)}</option>)}
+                {feeTypes.map(ft => <option key={ft} value={ft}>{ft === 'other' ? t('otherFee') : t(ft)}</option>)}
               </select>
             </div>
+            {form.feeType === 'other' && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">{t('customFeeLabel')}</label>
+                <input type="text" value={form.customFeeLabel} onChange={e => setForm({ ...form, customFeeLabel: e.target.value })}
+                  placeholder={t('customFeeLabel')}
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
+              </div>
+            )}
             {[{k:'amount',l:'amount',num:true},{k:'discount',l:'discount',num:true},{k:'billNumber',l:'billNumber',num:false},{k:'note',l:'note',num:false}].map(f => (
               <div key={f.k}>
                 <label className="text-xs font-medium text-muted-foreground">{t(f.l as any)}</label>

@@ -149,7 +149,7 @@ const ReportsPage = () => {
 
   // Fee type breakdown
   const feeTypeData = useMemo(() => {
-    const types: Record<FeeType, number> = { tuition: 0, transportation: 0, registration: 0 };
+    const types: Record<FeeType, number> = { tuition: 0, transportation: 0, registration: 0, other: 0 };
     filteredPayments.forEach(p => { types[p.feeType] += p.finalAmount; });
     return [
       { type: t('tuition'), amount: types.tuition, color: 'bg-blue-500' },

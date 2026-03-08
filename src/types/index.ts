@@ -27,13 +27,14 @@ export interface Student {
   schoolId: string;
 }
 
-export type FeeType = 'tuition' | 'transportation' | 'registration';
+export type FeeType = 'tuition' | 'transportation' | 'registration' | 'other';
 
 export interface Payment {
   id: string;
   studentId: string;
   schoolId: string;
   feeType: FeeType;
+  customFeeLabel?: string;
   amount: number;
   discount: number;
   finalAmount: number;
