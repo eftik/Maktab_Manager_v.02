@@ -8,7 +8,7 @@ import { formatShamsi } from '@/lib/shamsi';
 const expenseTypes = ['teacherSalary','driverSalary','guardSalary','cleanerSalary','electricity','internet','water','other'] as const;
 
 const ExpensesPage = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { schools, expenses, addExpense, deleteExpense } = useData();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ type: expenseTypes[0] as string, amount: '', date: new Date().toISOString().split('T')[0], note: '', schoolId: '' });
