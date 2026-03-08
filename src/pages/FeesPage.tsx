@@ -10,12 +10,15 @@ import { formatShamsi } from '@/lib/shamsi';
 import { fmtAFN, printHTML, toWestern, parseNumInput, numDisplay } from '@/lib/helpers';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
-const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration'];
+const feeTypes: FeeType[] = ['tuition', 'transportation', 'registration', 'other'];
+
+const feeTypeLabel = (ft: FeeType, t: (k: any) => string, customLabel?: string) =>
+  ft === 'other' ? (customLabel || t('otherFee')) : t(ft);
 
 const emptyForm = () => ({
   studentId: '', schoolId: '', feeType: 'tuition' as FeeType,
   amount: 0, discount: 0, finalAmount: 0, date: new Date().toISOString().split('T')[0],
-  note: '', billNumber: '',
+  note: '', billNumber: '', customFeeLabel: '',
 });
 
 const FeesPage = () => {
