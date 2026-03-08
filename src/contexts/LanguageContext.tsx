@@ -129,6 +129,9 @@ const T = {
     editAdmin:'ویرایش مدیر',
     printSelected:'چاپ انتخاب شده',
     selectAll:'انتخاب همه',
+    combinedReceipt:'رسید مشترک',
+    grandTotal:'مجموع کل',
+    items:'موارد',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
