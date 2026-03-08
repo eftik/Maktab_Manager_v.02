@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { Plus, Trash2, X } from 'lucide-react';
+import ShamsiDatePicker from '@/components/ShamsiDatePicker';
+import { formatShamsi } from '@/lib/shamsi';
 
 const expenseTypes = ['teacherSalary','driverSalary','guardSalary','cleanerSalary','electricity','internet','water','other'] as const;
 
