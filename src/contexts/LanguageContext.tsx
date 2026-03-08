@@ -45,6 +45,8 @@ const T = {
     allCategories:'All Categories', customCategory:'Custom Category',
     grades:'Grades', section:'Section', addGrade:'Add Grade', manageGrades:'Manage Grades',
     gradeLabel:'Grade', sectionLabel:'Section', noGrades:'No grades defined',
+    monthlyBreakdown:'Monthly Breakdown', unpaidFees:'Unpaid Fees', estimated:'Estimated',
+    monthly:'Monthly', total:'Total',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
