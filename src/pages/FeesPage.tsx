@@ -184,7 +184,7 @@ const FeesPage = () => {
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => { setQuickAdd(studentId); setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0] }); }}
+                    <button onClick={() => { setQuickAdd(studentId); setQuickForm({ feeType: 'tuition', amount: 0, discount: 0, billNumber: '', note: '', date: new Date().toISOString().split('T')[0], customFeeLabel: '' }); }}
                       className="w-full px-4 py-2.5 text-sm font-medium text-primary hover:bg-muted/50 flex items-center justify-center gap-1">
                       <Plus size={14} /> {t('addFee')}
                     </button>
