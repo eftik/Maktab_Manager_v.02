@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Expense, ExpenseCategory } from '@/types';
-import { Plus, Search, Edit2, Trash2, X } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi } from '@/lib/shamsi';
 import { fmtAFN, parseNumInput, numDisplay } from '@/lib/helpers';
@@ -60,6 +61,22 @@ const ExpensesPage = () => {
     setShowForm(false);
   };
 
+  const handleExportExcel = () => {
+    const rows = filtered.map(e => ({
+      [t('category')]: t(catKey[e.category] as any),
+      [t('amount')]: e.amount,
+      [t('personName')]: e.personName,
+      [t('description')]: e.description,
+      [t('school')]: schoolName(e.schoolId),
+      [t('date')]: formatShamsi(e.date, lang),
+      [t('billNumber')]: e.billNumber,
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
+    XLSX.writeFile(wb, `expenses-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center gap-2">
@@ -68,6 +85,7 @@ const ExpensesPage = () => {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('search')}
             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground" />
         </div>
+        <button onClick={handleExportExcel} className="bg-secondary text-secondary-foreground p-2.5 rounded-xl" title="Export Excel"><Download size={20} /></button>
         <button onClick={openAdd} className="bg-primary text-primary-foreground p-2.5 rounded-xl"><Plus size={20} /></button>
       </div>
 
