@@ -570,7 +570,7 @@ const ReportsPage = () => {
       </Tabs>
 
       {/* Export Buttons */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <button onClick={handlePrint} className="bg-primary text-primary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
           <FileText size={18} />{t('exportPdf')}
         </button>
@@ -579,6 +579,9 @@ const ReportsPage = () => {
         </button>
         <button onClick={handleExportCsv} className="bg-secondary text-secondary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
           <Download size={18} />{t('exportCsv')}
+        </button>
+        <button onClick={handleExportExcel} className="bg-green-600 text-white py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
+          <FileSpreadsheet size={18} />{t('exportExcel' as any)}
         </button>
       </div>
     </div>
