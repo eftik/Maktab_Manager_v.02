@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect, useCallback } from 'react';
 import { Home, School, Users, CreditCard, Receipt, BarChart3, UserCog, Settings, Menu, X, ChevronRight, ShieldCheck, LogOut } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { SyncStatusBar } from '@/components/SyncStatusBar';
 import { cn } from '@/lib/utils';
 
 const allNavItems = [
@@ -151,6 +152,9 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
           </nav>
         </>
       )}
+
+      {/* Sync Status */}
+      <SyncStatusBar />
 
       {/* Content */}
       <main className="flex-1 pb-24 overflow-auto scroll-smooth-touch">
