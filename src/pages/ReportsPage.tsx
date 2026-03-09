@@ -4,7 +4,7 @@ import { useData } from '@/contexts/DataContext';
 import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart, Upload, X, FileSpreadsheet } from 'lucide-react';
 import { fmtAFN, toCSV, downloadFile, printHTML } from '@/lib/helpers';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toShamsi, formatShamsiMonth, getShamsiMonthsRange, toGregorian, getCurrentShamsiDate } from '@/lib/shamsi';
+import { toShamsi, formatShamsiMonth, getShamsiMonthsRange, toGregorian, getCurrentShamsiDate, formatShamsi } from '@/lib/shamsi';
 import type { FeeType, ExpenseCategory } from '@/types';
 import * as XLSX from 'xlsx';
 
