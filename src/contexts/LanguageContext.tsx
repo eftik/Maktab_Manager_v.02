@@ -73,6 +73,12 @@ const T = {
     combinedReceipt:'Combined Receipt',
     grandTotal:'Grand Total',
     items:'Items',
+    monthlyFee:'Monthly Fee',
+    exportExcel:'Export Excel',
+    studentsCount:'Students',
+    staffPayments:'Staff Payments',
+    paymentRecords:'Payment Records',
+    gradeSection:'Grade/Section',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
@@ -144,6 +150,12 @@ const T = {
     combinedReceipt:'رسید مشترک',
     grandTotal:'مجموع کل',
     items:'موارد',
+    monthlyFee:'فیس ماهانه',
+    exportExcel:'دانلود اکسل',
+    studentsCount:'شاگردان',
+    staffPayments:'پرداخت‌های کارمندان',
+    paymentRecords:'سوابق پرداخت',
+    gradeSection:'صنف/بخش',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
@@ -215,6 +227,12 @@ const T = {
     combinedReceipt:'ګډ رسید',
     grandTotal:'ټوله مجموعه',
     items:'توکي',
+    monthlyFee:'میاشتني فیس',
+    exportExcel:'اکسل ډاونلوډ',
+    studentsCount:'زدکونکي',
+    staffPayments:'د کارکوونکو تادیات',
+    paymentRecords:'د تادیاتو سوابق',
+    gradeSection:'ټولګی/برخه',
   },
 } as const;
 

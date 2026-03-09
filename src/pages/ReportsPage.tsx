@@ -4,7 +4,7 @@ import { useData } from '@/contexts/DataContext';
 import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart, Upload, X, FileSpreadsheet } from 'lucide-react';
 import { fmtAFN, toCSV, downloadFile, printHTML } from '@/lib/helpers';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toShamsi, formatShamsiMonth, getShamsiMonthsRange, toGregorian, getCurrentShamsiDate } from '@/lib/shamsi';
+import { toShamsi, formatShamsiMonth, getShamsiMonthsRange, toGregorian, getCurrentShamsiDate, formatShamsi } from '@/lib/shamsi';
 import type { FeeType, ExpenseCategory } from '@/types';
 import * as XLSX from 'xlsx';
 
@@ -23,7 +23,7 @@ type PeriodType = 'monthly' | 'quarterly' | 'yearly' | 'custom' | 'all';
 
 const ReportsPage = () => {
   const { t, lang } = useLanguage();
-  const { schools, students, payments, expenses } = useData();
+  const { schools, students, payments, expenses, staffList } = useData();
   const [schoolFilter, setSchoolFilter] = useState('');
   const [importedData, setImportedData] = useState<ImportedReportData | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -204,6 +204,86 @@ const ReportsPage = () => {
       ['Expenses', String(stats.totalExp)], ['Profit', String(stats.netProfit)]
     ]);
     downloadFile(csv, 'report.csv');
+  };
+
+  const handleExportExcel = () => {
+    const wb = XLSX.utils.book_new();
+
+    // ── Sheet 1: Summary ──
+    const summaryData = [
+      ['School', t('totalStudents'), t('totalIncome'), t('totalExpenses'), t('netProfit')],
+      ...schools.map(school => {
+        const schoolStudents = students.filter(s => s.schoolId === school.id && s.status === 'active');
+        const schoolPayments = payments.filter(p => p.schoolId === school.id);
+        const income = schoolPayments.reduce((s, p) => s + p.finalAmount, 0);
+        const exp = expenses.filter(e => e.schoolId === school.id).reduce((s, e) => s + e.amount, 0);
+        return [school.name, schoolStudents.length, income, exp, income - exp];
+      }),
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryData), 'Summary');
+
+    // ── Sheet 2: Students by Grade/Section ──
+    const gradeData: (string | number)[][] = [
+      [t('school'), t('gradeSection' as any), t('studentsCount' as any), t('monthlyFee' as any)],
+    ];
+    schools.forEach(school => {
+      const gradeMap = new Map<string, number>();
+      students.filter(s => s.schoolId === school.id && s.status === 'active').forEach(s => {
+        const key = s.grade || 'Unassigned';
+        gradeMap.set(key, (gradeMap.get(key) || 0) + 1);
+      });
+      Array.from(gradeMap.entries()).sort().forEach(([grade, count]) => {
+        gradeData.push([school.name, grade, count, '']);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(gradeData), 'Grade Summary');
+
+    // ── Sheet 3: All Students ──
+    const studentRows = [
+      [t('name'), t('idNumber'), t('grade'), t('school'), t('parentName'), t('parentPhone'), t('monthlyFee' as any), t('discountType'), t('entryDate'), t('status')],
+      ...students.map(s => {
+        const school = schools.find(sc => sc.id === s.schoolId);
+        return [s.name, s.idNumber, s.grade, school?.name || '', s.parentName, s.parentPhone, s.monthlyFee || 0, s.discountType, s.entryDate, s.status];
+      }),
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(studentRows), 'Students');
+
+    // ── Sheet 4: Payment Records per Month ──
+    const payRows: (string | number)[][] = [
+      [t('student'), t('school'), t('grade'), t('feeType'), t('amount'), t('discount'), t('finalAmount'), t('date'), t('billNumber'), t('note')],
+    ];
+    payments
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .forEach(p => {
+        const student = students.find(s => s.id === p.studentId);
+        const school = schools.find(s => s.id === p.schoolId);
+        const { year, month } = toShamsi(new Date(p.date));
+        payRows.push([
+          student?.name || '', school?.name || '', student?.grade || '',
+          p.feeType, p.amount, p.discount, p.finalAmount,
+          formatShamsiMonth(year, month, lang), p.billNumber, p.note,
+        ]);
+      });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(payRows), 'Payment Records');
+
+    // ── Sheet 5: Staff Salary Payments ──
+    const staffPayRows: (string | number)[][] = [
+      [t('name'), t('role'), t('school'), t('salary'), t('date'), t('description')],
+    ];
+    expenses
+      .filter(e => e.category === 'salary')
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .forEach(e => {
+        const school = schools.find(s => s.id === e.schoolId);
+        const staffMember = staffList.find(st => st.id === e.staffId);
+        staffPayRows.push([
+          e.personName || staffMember?.name || '', staffMember?.role || '', school?.name || '',
+          e.amount, formatShamsi(e.date, lang), e.description,
+        ]);
+      });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(staffPayRows), 'Staff Payments');
+
+    XLSX.writeFile(wb, `school-report-${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const handlePrint = () => {
@@ -490,7 +570,7 @@ const ReportsPage = () => {
       </Tabs>
 
       {/* Export Buttons */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <button onClick={handlePrint} className="bg-primary text-primary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
           <FileText size={18} />{t('exportPdf')}
         </button>
@@ -499,6 +579,9 @@ const ReportsPage = () => {
         </button>
         <button onClick={handleExportCsv} className="bg-secondary text-secondary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
           <Download size={18} />{t('exportCsv')}
+        </button>
+        <button onClick={handleExportExcel} className="bg-green-600 text-white py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
+          <FileSpreadsheet size={18} />{t('exportExcel' as any)}
         </button>
       </div>
     </div>

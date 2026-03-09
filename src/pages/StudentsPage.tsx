@@ -1,18 +1,19 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Student } from '@/types';
-import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft, AlertCircle, MessageCircle, Upload } from 'lucide-react';
+import { Plus, Search, Edit2, Archive, RotateCcw, Trash2, X, User, ArrowLeft, AlertCircle, MessageCircle, Upload, ChevronDown, ChevronRight, Users } from 'lucide-react';
 import ShamsiDatePicker from '@/components/ShamsiDatePicker';
 import { formatShamsi, getShamsiMonthsRange, formatShamsiMonth, toShamsi } from '@/lib/shamsi';
 import { fmtAFN, parseNumInput, numDisplay } from '@/lib/helpers';
 import type { FeeType } from '@/types';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import ImportDialog from '@/components/ImportDialog';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 
 const emptyForm = () => ({
   name: '', idNumber: '', grade: '', parentName: '', parentPhone: '',
-  discountType: 'none' as Student['discountType'], discountValue: 0,
+  discountType: 'none' as Student['discountType'], discountValue: 0, monthlyFee: 0,
   entryDate: new Date().toISOString().split('T')[0], schoolId: '', status: 'active' as Student['status'],
 });
 
@@ -21,7 +22,6 @@ const StudentsPage = () => {
   const { schools, students, payments, addStudent, updateStudent, deleteStudent } = useData();
   const [search, setSearch] = useState('');
   const [schoolFilter, setSchoolFilter] = useState('');
-  const [classFilter, setClassFilter] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Student | null>(null);
@@ -29,8 +29,8 @@ const StudentsPage = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm());
   const [showImport, setShowImport] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
-  const allGrades = [...new Set(students.map(s => s.grade))].filter(Boolean);
   const selectedSchool = schools.find(s => s.id === form.schoolId);
   const schoolGrades = selectedSchool?.grades || [];
 
@@ -55,17 +55,47 @@ const StudentsPage = () => {
     }
     return unpaid;
   };
+
   const filtered = students
     .filter(s => showArchived ? s.status === 'archived' : s.status === 'active')
     .filter(s => !schoolFilter || s.schoolId === schoolFilter)
-    .filter(s => !classFilter || s.grade === classFilter)
     .filter(s => s.name.toLowerCase().includes(search.toLowerCase()) || s.parentName.toLowerCase().includes(search.toLowerCase()));
+
+  // Group students by grade
+  const groupedStudents = useMemo(() => {
+    const groups = new Map<string, Student[]>();
+    filtered.forEach(student => {
+      const key = student.grade || (lang === 'en' ? 'Unassigned' : 'نامشخص');
+      const list = groups.get(key) || [];
+      list.push(student);
+      groups.set(key, list);
+    });
+    // Sort groups alphabetically
+    return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [filtered, lang]);
+
+  const toggleGroup = (key: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const expandAll = () => {
+    setExpandedGroups(new Set(groupedStudents.map(([key]) => key)));
+  };
+
+  const collapseAll = () => {
+    setExpandedGroups(new Set());
+  };
 
   const openAdd = () => { setForm({ ...emptyForm(), schoolId: schools[0]?.id || '' }); setEditing(null); setShowForm(true); };
   const openEdit = (s: Student) => {
     setForm({ name: s.name, idNumber: s.idNumber, grade: s.grade, parentName: s.parentName,
       parentPhone: s.parentPhone, discountType: s.discountType, discountValue: s.discountValue,
-      entryDate: s.entryDate, schoolId: s.schoolId, status: s.status });
+      monthlyFee: s.monthlyFee || 0, entryDate: s.entryDate, schoolId: s.schoolId, status: s.status });
     setEditing(s); setShowForm(true);
   };
 
@@ -87,6 +117,7 @@ const StudentsPage = () => {
     window.open(`https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  // Student Detail View
   if (viewStudent) {
     const sp = payments.filter(p => p.studentId === viewStudent.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
@@ -110,6 +141,7 @@ const StudentsPage = () => {
             <div><span className="text-muted-foreground text-xs">{t('parentPhone')}</span><p className="font-medium text-foreground">{viewStudent.parentPhone}</p></div>
             <div><span className="text-muted-foreground text-xs">{t('discountType')}</span><p className="font-medium text-foreground">{t(viewStudent.discountType)}</p></div>
             <div><span className="text-muted-foreground text-xs">{t('entryDate')}</span><p className="font-medium text-foreground">{formatShamsi(viewStudent.entryDate, lang)}</p></div>
+            <div><span className="text-muted-foreground text-xs">{t('monthlyFee' as any)}</span><p className="font-medium text-foreground">{fmtAFN(viewStudent.monthlyFee || 0)}</p></div>
           </div>
         </div>
 
@@ -122,7 +154,6 @@ const StudentsPage = () => {
         {(() => {
           const unpaid = getUnpaidMonths(viewStudent);
           if (unpaid.length === 0) return null;
-          // Group by month
           const grouped = new Map<string, FeeType[]>();
           unpaid.forEach(u => {
             const key = `${u.year}-${u.month}`;
@@ -201,6 +232,43 @@ const StudentsPage = () => {
     );
   }
 
+  // Student Card Component
+  const StudentCard = ({ student }: { student: Student }) => {
+    const sp = payments.filter(p => p.studentId === student.id);
+    const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
+    const unpaid = getUnpaidMonths(student);
+    const unpaidMonthCount = new Set(unpaid.map(u => `${u.year}-${u.month}`)).size;
+
+    return (
+      <div className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <h3 className="font-semibold text-foreground">{student.name}</h3>
+            <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
+            <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
+            <p className="text-xs font-medium text-primary">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
+            {(student.monthlyFee || 0) > 0 && (
+              <p className="text-xs text-muted-foreground">{t('monthlyFee' as any)}: {fmtAFN(student.monthlyFee)}</p>
+            )}
+            {unpaidMonthCount > 0 && (
+              <p className="text-xs font-medium text-destructive flex items-center gap-1">
+                <AlertCircle size={12} /> {unpaidMonthCount} {t('unpaid')} {lang === 'en' ? 'month(s)' : lang === 'da' ? 'ماه' : 'میاشت'}
+              </p>
+            )}
+          </div>
+          <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+            <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
+            <button onClick={() => updateStudent({ ...student, status: student.status === 'active' ? 'archived' : 'active' })}
+              className="p-2 rounded-lg hover:bg-muted text-muted-foreground">
+              {student.status === 'active' ? <Archive size={16} /> : <RotateCcw size={16} />}
+            </button>
+            <button onClick={() => setDeleteId(student.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center gap-2">
@@ -219,51 +287,61 @@ const StudentsPage = () => {
           <option value="">{t('allSchools')}</option>
           {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
-        <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
-          className="flex-1 min-w-[100px] rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground">
-          <option value="">{t('allClasses')}</option>
-          {allGrades.map(g => <option key={g} value={g}>{g}</option>)}
-        </select>
         <button onClick={() => setShowArchived(!showArchived)}
           className={`px-3 py-2 rounded-xl text-xs font-medium border ${showArchived ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground'}`}>
           {showArchived ? t('archivedStudents') : t('activeStudents')}
         </button>
       </div>
 
+      {/* Expand/Collapse All */}
+      {groupedStudents.length > 1 && (
+        <div className="flex gap-2">
+          <button onClick={expandAll} className="text-xs text-primary font-medium">{lang === 'en' ? 'Expand All' : 'باز کردن همه'}</button>
+          <span className="text-muted-foreground">|</span>
+          <button onClick={collapseAll} className="text-xs text-primary font-medium">{lang === 'en' ? 'Collapse All' : 'بستن همه'}</button>
+        </div>
+      )}
+
       {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">{t('noData')}</p>}
 
+      {/* Grouped Students View */}
       <div className="space-y-3">
-        {filtered.map(student => {
-          const sp = payments.filter(p => p.studentId === student.id);
-          const totalPaid = sp.reduce((sum, p) => sum + p.finalAmount, 0);
-          const unpaid = getUnpaidMonths(student);
-          const unpaidMonthCount = new Set(unpaid.map(u => `${u.year}-${u.month}`)).size;
-          return (
-            <div key={student.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm" onClick={() => setViewStudent(student)}>
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-foreground">{student.name}</h3>
-                  <p className="text-xs text-muted-foreground">{student.parentName} · {student.grade}</p>
-                  <p className="text-xs text-muted-foreground">{schoolName(student.schoolId)}</p>
-                  <p className="text-xs font-medium text-primary">{t('totalPaid')}: {fmtAFN(totalPaid)}</p>
-                  {unpaidMonthCount > 0 && (
-                    <p className="text-xs font-medium text-destructive flex items-center gap-1">
-                      <AlertCircle size={12} /> {unpaidMonthCount} {t('unpaid')} {lang === 'en' ? 'month(s)' : lang === 'da' ? 'ماه' : 'میاشت'}
+        {groupedStudents.map(([gradeKey, gradeStudents]) => (
+          <Collapsible key={gradeKey} open={expandedGroups.has(gradeKey)} onOpenChange={() => toggleGroup(gradeKey)}>
+            <CollapsibleTrigger className="w-full">
+              <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2.5 rounded-xl">
+                    <Users size={18} className="text-primary" />
+                  </div>
+                  <div className="text-start">
+                    <h3 className="font-semibold text-foreground">{gradeKey}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {gradeStudents.length} {t('studentsCount' as any) || t('students')}
                     </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-full">
+                    {gradeStudents.length}
+                  </span>
+                  {expandedGroups.has(gradeKey) ? (
+                    <ChevronDown size={18} className="text-muted-foreground" />
+                  ) : (
+                    <ChevronRight size={18} className="text-muted-foreground" />
                   )}
                 </div>
-                <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                  <button onClick={() => openEdit(student)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><Edit2 size={16} /></button>
-                  <button onClick={() => updateStudent({ ...student, status: student.status === 'active' ? 'archived' : 'active' })}
-                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground">
-                    {student.status === 'active' ? <Archive size={16} /> : <RotateCcw size={16} />}
-                  </button>
-                  <button onClick={() => setDeleteId(student.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
-                </div>
               </div>
-            </div>
-          );
-        })}
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="space-y-2 mt-2 ml-4">
+                {gradeStudents.map(student => (
+                  <StudentCard key={student.id} student={student} />
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        ))}
       </div>
 
       <ConfirmDialog open={!!deleteId} title={t('delete')} message={t('deleteConfirm')}
@@ -306,6 +384,11 @@ const StudentsPage = () => {
                 <input value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" />
               )}
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">{t('monthlyFee' as any)}</label>
+              <input type="text" inputMode="numeric" value={numDisplay(form.monthlyFee)} onChange={e => setForm({ ...form, monthlyFee: parseNumInput(e.target.value) })}
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground" placeholder="0" />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">{t('discountType')}</label>

@@ -22,6 +22,7 @@ export interface Student {
   parentPhone: string;
   discountType: DiscountType;
   discountValue: number;
+  monthlyFee: number;
   entryDate: string;
   status: 'active' | 'archived';
   schoolId: string;
