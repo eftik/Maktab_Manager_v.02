@@ -75,9 +75,10 @@ const ImportDialog = ({ open, onClose }: Props) => {
         const school = schools.find(s => s.name.toLowerCase() === schoolName.toLowerCase());
 
         if (name.trim() && school) {
+          const monthlyFee = Number(row['monthlyFee'] || row['Monthly Fee'] || row['فیس ماهانه'] || 0);
           addStudent({
             name, idNumber, grade, parentName, parentPhone,
-            discountType: 'none', discountValue: 0,
+            discountType: 'none', discountValue: 0, monthlyFee,
             entryDate, schoolId: school.id, status: 'active',
           });
           count++;

@@ -65,7 +65,7 @@ const StudentsPage = () => {
   const openEdit = (s: Student) => {
     setForm({ name: s.name, idNumber: s.idNumber, grade: s.grade, parentName: s.parentName,
       parentPhone: s.parentPhone, discountType: s.discountType, discountValue: s.discountValue,
-      entryDate: s.entryDate, schoolId: s.schoolId, status: s.status });
+      monthlyFee: s.monthlyFee || 0, entryDate: s.entryDate, schoolId: s.schoolId, status: s.status });
     setEditing(s); setShowForm(true);
   };
 

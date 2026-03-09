@@ -227,6 +227,12 @@ const T = {
     combinedReceipt:'ګډ رسید',
     grandTotal:'ټوله مجموعه',
     items:'توکي',
+    monthlyFee:'میاشتني فیس',
+    exportExcel:'اکسل ډاونلوډ',
+    studentsCount:'زدکونکي',
+    staffPayments:'د کارکوونکو تادیات',
+    paymentRecords:'د تادیاتو سوابق',
+    gradeSection:'ټولګی/برخه',
   },
 } as const;
 
