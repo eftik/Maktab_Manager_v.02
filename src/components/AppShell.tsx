@@ -153,6 +153,9 @@ export const AppShell = ({ children, currentPath, onNavigate }: AppShellProps) =
         </>
       )}
 
+      {/* Sync Status */}
+      <SyncStatusBar />
+
       {/* Content */}
       <main className="flex-1 pb-24 overflow-auto scroll-smooth-touch">
         {children}
