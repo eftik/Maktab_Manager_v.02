@@ -150,6 +150,12 @@ const T = {
     combinedReceipt:'رسید مشترک',
     grandTotal:'مجموع کل',
     items:'موارد',
+    monthlyFee:'فیس ماهانه',
+    exportExcel:'دانلود اکسل',
+    studentsCount:'شاگردان',
+    staffPayments:'پرداخت‌های کارمندان',
+    paymentRecords:'سوابق پرداخت',
+    gradeSection:'صنف/بخش',
   },
   ps: {
     home:'کور', schools:'ښوونځي', students:'زدکونکي', fees:'فیسونه',
