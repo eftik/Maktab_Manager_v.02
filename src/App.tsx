@@ -9,23 +9,25 @@ import { DataProvider } from "@/contexts/DataContext";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 
-// Lazy load all pages for faster initial bundle
-const HomePage = lazy(() => import("@/pages/HomePage"));
-const SchoolsPage = lazy(() => import("@/pages/SchoolsPage"));
-const StudentsPage = lazy(() => import("@/pages/StudentsPage"));
-const FeesPage = lazy(() => import("@/pages/FeesPage"));
-const ExpensesPage = lazy(() => import("@/pages/ExpensesPage"));
-const ReportsPage = lazy(() => import("@/pages/ReportsPage"));
-const StaffPage = lazy(() => import("@/pages/StaffPage"));
-const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
-const AdminsPage = lazy(() => import("@/pages/AdminsPage"));
+// Direct imports for fast page switching
+import HomePage from "@/pages/HomePage";
+import SchoolsPage from "@/pages/SchoolsPage";
+import StudentsPage from "@/pages/StudentsPage";
+import FeesPage from "@/pages/FeesPage";
+import ExpensesPage from "@/pages/ExpensesPage";
+import ReportsPage from "@/pages/ReportsPage";
+import StaffPage from "@/pages/StaffPage";
+import SettingsPage from "@/pages/SettingsPage";
+import AdminsPage from "@/pages/AdminsPage";
+
+// Only lazy-load rarely used pages
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const SetupPage = lazy(() => import("@/pages/SetupPage"));
 const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
 
 const queryClient = new QueryClient();
 
-const pages: Record<string, React.LazyExoticComponent<React.FC>> = {
+const pages: Record<string, React.FC> = {
   '/': HomePage,
   '/schools': SchoolsPage,
   '/students': StudentsPage,
