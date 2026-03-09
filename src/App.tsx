@@ -112,9 +112,7 @@ const AuthenticatedApp = () => {
   return (
     <DataProvider>
       <AppShell currentPath={effectivePath} onNavigate={setPath}>
-        <Suspense fallback={<PageSpinner />}>
-          <Page />
-        </Suspense>
+        <Page />
       </AppShell>
     </DataProvider>
   );
