@@ -12,7 +12,7 @@ import ImportDialog from '@/components/ImportDialog';
 
 const emptyForm = () => ({
   name: '', idNumber: '', grade: '', parentName: '', parentPhone: '',
-  discountType: 'none' as Student['discountType'], discountValue: 0,
+  discountType: 'none' as Student['discountType'], discountValue: 0, monthlyFee: 0,
   entryDate: new Date().toISOString().split('T')[0], schoolId: '', status: 'active' as Student['status'],
 });
 
