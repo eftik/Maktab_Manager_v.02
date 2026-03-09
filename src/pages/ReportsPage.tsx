@@ -23,7 +23,7 @@ type PeriodType = 'monthly' | 'quarterly' | 'yearly' | 'custom' | 'all';
 
 const ReportsPage = () => {
   const { t, lang } = useLanguage();
-  const { schools, students, payments, expenses } = useData();
+  const { schools, students, payments, expenses, staffList } = useData();
   const [schoolFilter, setSchoolFilter] = useState('');
   const [importedData, setImportedData] = useState<ImportedReportData | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
