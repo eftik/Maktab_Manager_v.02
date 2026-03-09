@@ -73,6 +73,12 @@ const T = {
     combinedReceipt:'Combined Receipt',
     grandTotal:'Grand Total',
     items:'Items',
+    monthlyFee:'Monthly Fee',
+    exportExcel:'Export Excel',
+    studentsCount:'Students',
+    staffPayments:'Staff Payments',
+    paymentRecords:'Payment Records',
+    gradeSection:'Grade/Section',
   },
   da: {
     home:'خانه', schools:'مکاتب', students:'شاگردان', fees:'فیس‌ها',
