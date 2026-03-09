@@ -1,19 +1,26 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/contexts/DataContext';
 import { useState, useEffect } from 'react';
-import { Globe, Moon, Sun, RotateCcw, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Globe, Moon, Sun, RotateCcw, KeyRound, Eye, EyeOff, Download, CloudUpload, Loader2, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAutoBackup } from '@/hooks/useAutoBackup';
 import type { Language } from '@/types';
 
 const SettingsPage = () => {
   const { t, lang, setLang } = useLanguage();
   const { isOwner } = useAuth();
+  const { isOnline } = useData();
+  const { backupNow } = useAutoBackup();
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
   const [showReset, setShowReset] = useState(false);
   const [resetPasscode, setResetPasscode] = useState('');
   const [showPasscode, setShowPasscode] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
+  const [backingUp, setBackingUp] = useState(false);
+  const [backupDone, setBackupDone] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -30,13 +37,40 @@ const SettingsPage = () => {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      // Sign out and reload
       await supabase.auth.signOut();
       window.location.reload();
     } catch (err: any) {
       setResetError(err.message || 'Reset failed');
     }
     setResetLoading(false);
+  };
+
+  const handleBackupNow = async () => {
+    setBackingUp(true);
+    setBackupDone(false);
+    await backupNow();
+    setBackingUp(false);
+    setBackupDone(true);
+    setTimeout(() => setBackupDone(false), 3000);
+  };
+
+  const handleDownloadBackup = async () => {
+    setDownloading(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from('backups')
+        .download('maktab-manager-backup.xlsx');
+      if (error) throw error;
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `maktab-manager-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+    setDownloading(false);
   };
 
   const langs: { code: Language; label: string }[] = [
@@ -76,6 +110,51 @@ const SettingsPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Backup Section — Owner only */}
+      {isOwner && (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <CloudUpload size={20} className="text-primary" />
+              <div>
+                <span className="text-sm font-medium text-foreground">{t('autoBackup' as any) || 'Auto Backup'}</span>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t('autoBackupDesc' as any) || 'All data is automatically saved as an Excel file in the cloud'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleBackupNow}
+                disabled={backingUp || !isOnline}
+                className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-medium disabled:opacity-50"
+              >
+                {backingUp ? (
+                  <><Loader2 size={16} className="animate-spin" /> {t('backing' as any) || 'Backing up…'}</>
+                ) : backupDone ? (
+                  <><Check size={16} /> {t('backupDone' as any) || 'Backup Complete ✓'}</>
+                ) : (
+                  <><CloudUpload size={16} /> {t('backupNow' as any) || 'Backup Now'}</>
+                )}
+              </button>
+
+              <button
+                onClick={handleDownloadBackup}
+                disabled={downloading || !isOnline}
+                className="flex items-center justify-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50"
+              >
+                {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+              </button>
+            </div>
+
+            {!isOnline && (
+              <p className="text-xs text-destructive">{t('backupOffline' as any) || 'Backup requires internet connection'}</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Reset App — Owner only */}
       {isOwner && (

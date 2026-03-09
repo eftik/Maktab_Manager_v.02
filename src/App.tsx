@@ -8,6 +8,10 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { useAutoBackup } from "@/hooks/useAutoBackup";
+
+// Silent component that just runs the auto-backup hook
+const AutoBackupRunner = () => { useAutoBackup(); return null; };
 
 // Direct imports for fast page switching
 import HomePage from "@/pages/HomePage";
@@ -111,6 +115,7 @@ const AuthenticatedApp = () => {
 
   return (
     <DataProvider>
+      <AutoBackupRunner />
       <AppShell currentPath={effectivePath} onNavigate={setPath}>
         <Page />
       </AppShell>
