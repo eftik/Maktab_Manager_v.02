@@ -111,6 +111,7 @@ const AuthenticatedApp = () => {
 
   return (
     <DataProvider>
+      <AutoBackupRunner />
       <AppShell currentPath={effectivePath} onNavigate={setPath}>
         <Page />
       </AppShell>
