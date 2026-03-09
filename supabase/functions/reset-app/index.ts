@@ -36,6 +36,13 @@ serve(async (req) => {
       throw new Error('Invalid master passcode');
     }
 
+    // Delete all app data (cascade will handle related records)
+    await adminClient.from('payments').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await adminClient.from('expenses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await adminClient.from('students').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await adminClient.from('staff').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await adminClient.from('schools').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
     // Get all admin user_ids to delete auth users
     const { data: admins } = await adminClient
       .from('admins')
