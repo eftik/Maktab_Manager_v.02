@@ -47,6 +47,256 @@ export type Database = {
         }
         Relationships: []
       }
+      expenses: {
+        Row: {
+          amount: number
+          bill_number: string
+          category: string
+          created_at: string
+          date: string
+          description: string
+          id: string
+          person_name: string
+          school_id: string
+          staff_id: string | null
+        }
+        Insert: {
+          amount?: number
+          bill_number?: string
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          person_name?: string
+          school_id: string
+          staff_id?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_number?: string
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          person_name?: string
+          school_id?: string
+          staff_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          bill_number: string
+          created_at: string
+          custom_fee_label: string | null
+          date: string
+          discount: number
+          fee_type: string
+          final_amount: number
+          id: string
+          note: string
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          amount?: number
+          bill_number?: string
+          created_at?: string
+          custom_fee_label?: string | null
+          date?: string
+          discount?: number
+          fee_type?: string
+          final_amount?: number
+          id?: string
+          note?: string
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          amount?: number
+          bill_number?: string
+          created_at?: string
+          custom_fee_label?: string | null
+          date?: string
+          discount?: number
+          fee_type?: string
+          final_amount?: number
+          id?: string
+          note?: string
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schools: {
+        Row: {
+          address: string
+          created_at: string
+          grades: Json
+          id: string
+          name: string
+          phone: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          grades?: Json
+          id?: string
+          name: string
+          phone?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          grades?: Json
+          id?: string
+          name?: string
+          phone?: string
+        }
+        Relationships: []
+      }
+      staff: {
+        Row: {
+          active: boolean
+          created_at: string
+          custom_role: string | null
+          entry_date: string
+          exit_date: string | null
+          id: string
+          id_number: string
+          name: string
+          phone: string
+          role: string
+          salary: number
+          school_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          custom_role?: string | null
+          entry_date?: string
+          exit_date?: string | null
+          id?: string
+          id_number?: string
+          name: string
+          phone?: string
+          role?: string
+          salary?: number
+          school_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          custom_role?: string | null
+          entry_date?: string
+          exit_date?: string | null
+          id?: string
+          id_number?: string
+          name?: string
+          phone?: string
+          role?: string
+          salary?: number
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          created_at: string
+          discount_type: string
+          discount_value: number
+          entry_date: string
+          grade: string
+          id: string
+          id_number: string
+          monthly_fee: number
+          name: string
+          parent_name: string
+          parent_phone: string
+          school_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          entry_date?: string
+          grade?: string
+          id?: string
+          id_number?: string
+          monthly_fee?: number
+          name: string
+          parent_name?: string
+          parent_phone?: string
+          school_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          entry_date?: string
+          grade?: string
+          id?: string
+          id_number?: string
+          monthly_fee?: number
+          name?: string
+          parent_name?: string
+          parent_phone?: string
+          school_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_settings: {
         Row: {
           created_at: string
