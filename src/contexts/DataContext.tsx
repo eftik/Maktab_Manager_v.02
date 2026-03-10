@@ -214,9 +214,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
           if (rowData.student_id) rowData.student_id = resolveId(rowData.student_id);
           if (rowData.staff_id) rowData.staff_id = resolveId(rowData.staff_id);
 
-          const { data, error } = await supabase.from(m.table).insert(rowData).select().single();
+          const { data, error } = await (supabase.from(m.table) as any).insert(rowData).select().single();
           if (error) throw error;
-          if (data) idMapRef.current.set(m.localId, data.id);
+          if (data) idMapRef.current.set(m.localId, (data as any).id);
         } else if (m.action === 'update') {
           const realId = resolveId(m.localId);
           const rowData = ROW_BUILDERS[m.table]?.(m.data) || m.data;

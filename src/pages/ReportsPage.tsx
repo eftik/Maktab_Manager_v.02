@@ -1,8 +1,10 @@
 import { useState, useMemo, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart, Upload, X, FileSpreadsheet } from 'lucide-react';
+import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart, Upload, X, FileSpreadsheet, FileDown } from 'lucide-react';
 import { fmtAFN, toCSV, downloadFile, printHTML } from '@/lib/helpers';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toShamsi, formatShamsiMonth, getShamsiMonthsRange, toGregorian, getCurrentShamsiDate, formatShamsi } from '@/lib/shamsi';
 import type { FeeType, ExpenseCategory } from '@/types';
