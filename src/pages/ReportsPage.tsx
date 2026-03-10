@@ -288,6 +288,49 @@ const ReportsPage = () => {
     XLSX.writeFile(wb, `school-report-${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  const handleExportPdf = () => {
+    const doc = new jsPDF();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('Maktab Manager - Financial Report', 14, 20);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    // Summary table
+    autoTable(doc, {
+      startY: 35,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Active Students', String(stats.totalStudents)],
+        ['Total Income', fmtAFN(stats.income)],
+        ['Total Expenses', fmtAFN(stats.totalExp)],
+        ['Net Profit/Loss', fmtAFN(stats.netProfit)],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+
+    // Monthly breakdown
+    if (monthlyData.length > 0) {
+      const lastY = (doc as any).lastAutoTable?.finalY || 70;
+      autoTable(doc, {
+        startY: lastY + 10,
+        head: [['Month', 'Income', 'Expenses', 'Profit/Loss']],
+        body: monthlyData.map(m => [
+          m.month,
+          fmtAFN(m.income),
+          fmtAFN(m.expenses),
+          fmtAFN(m.income - m.expenses),
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129] },
+      });
+    }
+
+    doc.save(`financial-report-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   const handlePrint = () => {
     let extraHTML = '';
     if (importedData) {
