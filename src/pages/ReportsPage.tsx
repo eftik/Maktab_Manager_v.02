@@ -1,8 +1,10 @@
 import { useState, useMemo, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart, Upload, X, FileSpreadsheet } from 'lucide-react';
+import { FileText, Printer, Download, Users, TrendingUp, TrendingDown, DollarSign, AlertCircle, Calendar, PieChart, Upload, X, FileSpreadsheet, FileDown } from 'lucide-react';
 import { fmtAFN, toCSV, downloadFile, printHTML } from '@/lib/helpers';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toShamsi, formatShamsiMonth, getShamsiMonthsRange, toGregorian, getCurrentShamsiDate, formatShamsi } from '@/lib/shamsi';
 import type { FeeType, ExpenseCategory } from '@/types';
@@ -284,6 +286,49 @@ const ReportsPage = () => {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(staffPayRows), 'Staff Payments');
 
     XLSX.writeFile(wb, `school-report-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const handleExportPdf = () => {
+    const doc = new jsPDF();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('Maktab Manager - Financial Report', 14, 20);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    // Summary table
+    autoTable(doc, {
+      startY: 35,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Active Students', String(stats.totalStudents)],
+        ['Total Income', fmtAFN(stats.income)],
+        ['Total Expenses', fmtAFN(stats.totalExp)],
+        ['Net Profit/Loss', fmtAFN(stats.netProfit)],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+
+    // Monthly breakdown
+    if (monthlyData.length > 0) {
+      const lastY = (doc as any).lastAutoTable?.finalY || 70;
+      autoTable(doc, {
+        startY: lastY + 10,
+        head: [['Month', 'Income', 'Expenses', 'Profit/Loss']],
+        body: monthlyData.map(m => [
+          m.month,
+          fmtAFN(m.income),
+          fmtAFN(m.expenses),
+          fmtAFN(m.income - m.expenses),
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129] },
+      });
+    }
+
+    doc.save(`financial-report-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const handlePrint = () => {
@@ -571,17 +616,17 @@ const ReportsPage = () => {
 
       {/* Export Buttons */}
       <div className="grid grid-cols-2 gap-2">
-        <button onClick={handlePrint} className="bg-primary text-primary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
-          <FileText size={18} />{t('exportPdf')}
+        <button onClick={handleExportPdf} className="bg-red-600 text-white py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
+          <FileDown size={18} />{t('exportPdf')}
         </button>
-        <button onClick={() => window.print()} className="bg-secondary text-secondary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
+        <button onClick={handleExportExcel} className="bg-green-600 text-white py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
+          <FileSpreadsheet size={18} />{t('exportExcel' as any)}
+        </button>
+        <button onClick={handlePrint} className="bg-primary text-primary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
           <Printer size={18} />{t('printReport')}
         </button>
         <button onClick={handleExportCsv} className="bg-secondary text-secondary-foreground py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
           <Download size={18} />{t('exportCsv')}
-        </button>
-        <button onClick={handleExportExcel} className="bg-green-600 text-white py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1">
-          <FileSpreadsheet size={18} />{t('exportExcel' as any)}
         </button>
       </div>
     </div>
