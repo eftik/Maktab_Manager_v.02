@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import type { School, Student, Payment, Expense, Staff, GradeSection, DiscountType, FeeType, ExpenseCategory, StaffRole } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { uid } from '@/lib/helpers';
+import { idbGetAll, idbPutAll, idbGetQueue, idbSaveQueue, idbAddToQueue } from '@/lib/indexedDB';
 
 // ── Offline queue types ──
 interface QueuedMutation {
@@ -9,14 +10,17 @@ interface QueuedMutation {
   table: 'schools' | 'students' | 'payments' | 'expenses' | 'staff';
   action: 'insert' | 'update' | 'delete';
   data: any;
-  localId: string; // local temp id for inserts
+  localId: string;
   timestamp: number;
 }
+
+type SyncStatus = 'online' | 'offline' | 'syncing' | 'error';
 
 interface Ctx {
   schools: School[]; students: Student[]; payments: Payment[]; expenses: Expense[]; staffList: Staff[];
   loading: boolean;
   isOnline: boolean;
+  syncStatus: SyncStatus;
   pendingSyncCount: number;
   syncNow: () => Promise<void>;
   addSchool: (s: Omit<School, 'id'>) => Promise<void>;
@@ -37,23 +41,6 @@ interface Ctx {
 }
 
 const DataContext = createContext<Ctx | null>(null);
-
-// ── Local cache helpers ──
-const CACHE_PREFIX = 'cache_';
-const QUEUE_KEY = 'offline_mutation_queue';
-
-const cacheGet = <T,>(key: string): T[] => {
-  try { return JSON.parse(localStorage.getItem(CACHE_PREFIX + key) || '[]'); } catch { return []; }
-};
-const cacheSet = (key: string, data: unknown) => {
-  try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(data)); } catch { /* quota exceeded */ }
-};
-const getQueue = (): QueuedMutation[] => {
-  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch { return []; }
-};
-const saveQueue = (q: QueuedMutation[]) => {
-  try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch { /* quota */ }
-};
 
 // ── Mappers: DB row <-> App type ──
 const mapSchoolFromDB = (row: any): School => ({
@@ -124,72 +111,97 @@ const ROW_BUILDERS: Record<string, (d: any) => any> = {
 };
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
-  const [schools, setSchools] = useState<School[]>(() => cacheGet<School>('schools'));
-  const [students, setStudents] = useState<Student[]>(() => cacheGet<Student>('students'));
-  const [payments, setPayments] = useState<Payment[]>(() => cacheGet<Payment>('payments'));
-  const [expenses, setExpenses] = useState<Expense[]>(() => cacheGet<Expense>('expenses'));
-  const [staffList, setStaffList] = useState<Staff[]>(() => cacheGet<Staff>('staff'));
+  const [schools, setSchools] = useState<School[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [staffList, setStaffList] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [queue, setQueue] = useState<QueuedMutation[]>(() => getQueue());
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(navigator.onLine ? 'online' : 'offline');
+  const [queue, setQueue] = useState<QueuedMutation[]>([]);
   const syncingRef = useRef(false);
-  // Track local→remote id mapping for inserts that sync later
   const idMapRef = useRef<Map<string, string>>(new Map());
+  const initializedRef = useRef(false);
 
   // ── Online/Offline detection ──
   useEffect(() => {
-    const goOnline = () => setIsOnline(true);
-    const goOffline = () => setIsOnline(false);
+    const goOnline = () => { setIsOnline(true); setSyncStatus('online'); };
+    const goOffline = () => { setIsOnline(false); setSyncStatus('offline'); };
     window.addEventListener('online', goOnline);
     window.addEventListener('offline', goOffline);
     return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
   }, []);
 
-  // ── Persist cache whenever state changes ──
-  useEffect(() => { cacheSet('schools', schools); }, [schools]);
-  useEffect(() => { cacheSet('students', students); }, [students]);
-  useEffect(() => { cacheSet('payments', payments); }, [payments]);
-  useEffect(() => { cacheSet('expenses', expenses); }, [expenses]);
-  useEffect(() => { cacheSet('staff', staffList); }, [staffList]);
-  useEffect(() => { saveQueue(queue); }, [queue]);
+  // ── Persist to IndexedDB whenever state changes ──
+  useEffect(() => { if (initializedRef.current) idbPutAll('schools', schools); }, [schools]);
+  useEffect(() => { if (initializedRef.current) idbPutAll('students', students); }, [students]);
+  useEffect(() => { if (initializedRef.current) idbPutAll('payments', payments); }, [payments]);
+  useEffect(() => { if (initializedRef.current) idbPutAll('expenses', expenses); }, [expenses]);
+  useEffect(() => { if (initializedRef.current) idbPutAll('staff', staffList); }, [staffList]);
+  useEffect(() => { if (initializedRef.current) idbSaveQueue(queue); }, [queue]);
 
-  // ── Fetch from server when online ──
+  // ── Load from IndexedDB first, then fetch from server ──
   useEffect(() => {
-    const fetchAll = async () => {
-      if (!navigator.onLine) { setLoading(false); return; }
-      try {
-        const [schRes, stuRes, payRes, expRes, stfRes] = await Promise.all([
-          supabase.from('schools').select('*'),
-          supabase.from('students').select('*'),
-          supabase.from('payments').select('*'),
-          supabase.from('expenses').select('*'),
-          supabase.from('staff').select('*'),
-        ]);
-        if (schRes.data) setSchools(schRes.data.map(mapSchoolFromDB));
-        if (stuRes.data) setStudents(stuRes.data.map(mapStudentFromDB));
-        if (payRes.data) setPayments(payRes.data.map(mapPaymentFromDB));
-        if (expRes.data) setExpenses(expRes.data.map(mapExpenseFromDB));
-        if (stfRes.data) setStaffList(stfRes.data.map(mapStaffFromDB));
-      } catch { /* use cached data */ }
+    const init = async () => {
+      // Load cached data from IndexedDB
+      const [cachedSchools, cachedStudents, cachedPayments, cachedExpenses, cachedStaff, cachedQueue] = await Promise.all([
+        idbGetAll<School>('schools'),
+        idbGetAll<Student>('students'),
+        idbGetAll<Payment>('payments'),
+        idbGetAll<Expense>('expenses'),
+        idbGetAll<Staff>('staff'),
+        idbGetQueue(),
+      ]);
+
+      if (cachedSchools.length) setSchools(cachedSchools);
+      if (cachedStudents.length) setStudents(cachedStudents);
+      if (cachedPayments.length) setPayments(cachedPayments);
+      if (cachedExpenses.length) setExpenses(cachedExpenses);
+      if (cachedStaff.length) setStaffList(cachedStaff);
+      if (cachedQueue.length) setQueue(cachedQueue);
+
+      initializedRef.current = true;
+
+      // Then fetch fresh data from server if online
+      if (navigator.onLine) {
+        try {
+          const [schRes, stuRes, payRes, expRes, stfRes] = await Promise.all([
+            supabase.from('schools').select('*'),
+            supabase.from('students').select('*'),
+            supabase.from('payments').select('*'),
+            supabase.from('expenses').select('*'),
+            supabase.from('staff').select('*'),
+          ]);
+          if (schRes.data) setSchools(schRes.data.map(mapSchoolFromDB));
+          if (stuRes.data) setStudents(stuRes.data.map(mapStudentFromDB));
+          if (payRes.data) setPayments(payRes.data.map(mapPaymentFromDB));
+          if (expRes.data) setExpenses(expRes.data.map(mapExpenseFromDB));
+          if (stfRes.data) setStaffList(stfRes.data.map(mapStaffFromDB));
+        } catch { /* use cached data */ }
+      }
       setLoading(false);
     };
-    fetchAll();
+    init();
   }, []);
 
-  // ── Queue a mutation for offline sync ──
-  const enqueue = useCallback((m: Omit<QueuedMutation, 'id' | 'timestamp'>) => {
+  // ── Queue a mutation ──
+  const enqueue = useCallback(async (m: Omit<QueuedMutation, 'id' | 'timestamp'>) => {
     const mutation: QueuedMutation = { ...m, id: uid(), timestamp: Date.now() };
     setQueue(prev => [...prev, mutation]);
+    await idbAddToQueue(mutation);
   }, []);
 
   // ── Process the offline queue ──
   const processQueue = useCallback(async () => {
     if (syncingRef.current || !navigator.onLine) return;
-    const pending = getQueue();
+    const pending = await idbGetQueue();
     if (pending.length === 0) return;
 
     syncingRef.current = true;
+    setSyncStatus('syncing');
     const remaining: QueuedMutation[] = [];
+    let hadError = false;
 
     for (const m of pending) {
       try {
@@ -197,19 +209,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
         if (m.action === 'insert') {
           const rowData = ROW_BUILDERS[m.table]?.(m.data) || m.data;
-          // Remove the local id — let Supabase generate a real UUID
           delete rowData.id;
-          // Resolve foreign keys that may reference local ids
           if (rowData.school_id) rowData.school_id = resolveId(rowData.school_id);
           if (rowData.student_id) rowData.student_id = resolveId(rowData.student_id);
           if (rowData.staff_id) rowData.staff_id = resolveId(rowData.staff_id);
 
           const { data, error } = await supabase.from(m.table).insert(rowData).select().single();
           if (error) throw error;
-          if (data) {
-            // Map local id to real id
-            idMapRef.current.set(m.localId, data.id);
-          }
+          if (data) idMapRef.current.set(m.localId, data.id);
         } else if (m.action === 'update') {
           const realId = resolveId(m.localId);
           const rowData = ROW_BUILDERS[m.table]?.(m.data) || m.data;
@@ -226,12 +233,20 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.error('Sync failed for mutation:', m, err);
-        remaining.push(m); // retry later
+        remaining.push(m);
+        hadError = true;
       }
     }
 
     setQueue(remaining);
+    await idbSaveQueue(remaining);
     syncingRef.current = false;
+
+    if (hadError && remaining.length > 0) {
+      setSyncStatus('error');
+    } else {
+      setSyncStatus('online');
+    }
 
     // Re-fetch fresh data after sync
     if (remaining.length < pending.length) {
@@ -266,7 +281,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     onlineAction: () => Promise<{ success: boolean; serverData?: any }>,
     updateLocal: () => void,
   ) => {
-    // Always update local state immediately
     updateLocal();
 
     if (navigator.onLine) {
@@ -276,7 +290,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       } catch { /* fall through to queue */ }
     }
 
-    // Offline or failed — queue it
     enqueue({ table, action, data, localId });
   }, [enqueue]);
 
@@ -477,7 +490,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   return (
     <DataContext.Provider value={{
       schools, students, payments, expenses, staffList, loading,
-      isOnline, pendingSyncCount: queue.length, syncNow: processQueue,
+      isOnline, syncStatus, pendingSyncCount: queue.length, syncNow: processQueue,
       addSchool, updateSchool, deleteSchool,
       addStudent, updateStudent, deleteStudent,
       addPayment, updatePayment, deletePayment,
